@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #0b2545;
+    --secondary-color: #134074;
+    --accent-color: #d4af37;
+    --bg-light: #f8fafc;
+    --border-color: #e2e8f0;
+    --text-main: #334155;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ADMIN PANEL LAYOUT */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 260px;
+    min-width: 260px; /* Lock sidebar width */
+    flex-shrink: 0; /* Prevent sidebar from shrinking when content is too wide */
+    background-color: var(--primary-color);
+    color: #ffffff;
+    transition: all 0.3s;
+}
+
+.admin-sidebar .sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #1e293b;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+}
+
+.admin-sidebar ul.components {
+    padding: 20px 0;
+}
+
+.admin-sidebar ul li a {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-left: 4px solid transparent; /* Transparent left border by default to prevent text-jumping */
+}
+
+.admin-sidebar ul li a i {
+    width: 24px;
+    text-align: center;
+    margin-right: 12px !important; /* Force beautiful icon alignments */
+}
+
+.admin-sidebar ul li a:hover, .admin-sidebar ul li.active a {
+    color: #ffffff;
+    background: var(--secondary-color);
+    border-left-color: var(--accent-color); /* Animate just the border color */
+}
+
+.admin-content {
+    flex-grow: 1;
+    min-width: 0; /* Prevent wide tables/inputs from expanding parent and shrinking the sidebar */
+    background-color: #f8fafc;
+    padding: 30px;
+}
+
+.admin-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    margin-bottom: 24px;
+}
+
+/* MOBILE RESPONSIVE STYLES FOR ADMIN DASHBOARD */
+@media (max-width: 991px) {
+    .admin-wrapper {
+        position: relative;
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        height: 100vh;
+        z-index: 1040;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .admin-sidebar.show {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,0.4);
+        z-index: 1030;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    .admin-content {
+        padding: 20px 15px;
+        margin-top: 60px; /* Space for mobile top bar */
+    }
+
+    /* Top navbar adjustments */
+    .admin-top-nav-mobile {
+        display: flex !important;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--border-color);
+        padding: 0 20px;
+        z-index: 1020;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+}

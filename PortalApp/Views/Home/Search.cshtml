@@ -1,0 +1,74 @@
+@model List<New_folder.Models.Post>
+
+@{
+    ViewData["Title"] = "Tìm kiếm: " + ViewBag.Query;
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tìm kiếm</li>
+            </ol>
+        </nav>
+        <div class="traditional-category-bar">
+            <span>Kết quả tìm kiếm cho: "@ViewBag.Query"</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT SIDE: RESULTS (70%) -->
+    <div class="col-lg-8">
+        @if (Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var post in Model)
+                {
+                    <div class="col-md-6 col-12">
+                        <div class="news-card-traditional shadow-sm h-100 d-flex flex-column justify-content-between rounded-2 overflow-hidden border">
+                            <div class="news-card-img" style="height: 180px;">
+                                <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" alt="@post.Title">
+                            </div>
+                            <div class="news-card-body d-flex flex-column justify-content-between flex-grow-1">
+                                <span class="badge bg-light text-secondary mb-2 text-uppercase" style="font-size: 0.7rem;">@post.Category?.Name</span>
+                                <h5 class="news-card-title fw-bold fs-6">
+                                    <a asp-action="PostDetail" asp-route-slug="@post.Slug">@post.Title</a>
+                                </h5>
+                                <p class="small text-muted mb-3">@post.Summary</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top small text-muted">
+                                    <span><i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    <span>Tác giả: <strong>@post.Author?.FullName</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 bg-white border rounded-3">
+                <i class="fa-solid fa-magnifying-glass fs-1 text-muted mb-3"></i>
+                <h5 class="text-dark">Không tìm thấy bài viết nào khớp với từ khóa</h5>
+                <p class="text-muted small">Hãy thử tìm kiếm bằng một từ khóa khác hoặc quay lại trang chủ.</p>
+                <a asp-action="Index" class="btn btn-primary btn-sm rounded-pill font-monospace fw-bold mt-2">Về trang chủ</a>
+            </div>
+        }
+    </div>
+
+    <!-- RIGHT SIDE: AD SIDEBAR (30%) -->
+    <div class="col-lg-4">
+        <div class="tieu-diem-box shadow-sm mb-4">
+            <div class="tieu-diem-header"><i class="fa-solid fa-magnifying-glass me-2"></i> Mẹo tìm kiếm</div>
+            <div class="p-3">
+                <ul class="small text-muted ps-3 m-0">
+                    <li class="mb-2">Kiểm tra chính xác chính tả.</li>
+                    <li class="mb-2">Thử bằng từ khóa ngắn gọn (ví dụ: "chống giả", "doanh nghiệp").</li>
+                    <li>Tìm kiếm theo tên các doanh nghiệp thành viên.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

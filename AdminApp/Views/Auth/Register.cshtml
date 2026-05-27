@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Đăng ký Doanh nghiệp";
+}
+
+<div class="row justify-content-center my-5">
+    <div class="col-md-7 col-12">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+            <div class="card-header bg-primary text-white text-center py-4 border-0">
+                <i class="fa-solid fa-building-circle-check fs-1 mb-2 text-warning"></i>
+                <h3 class="m-0 brand-font text-uppercase text-white">Đăng ký Doanh nghiệp</h3>
+                <span class="small text-light-50">Tham gia Cổng thông tin PR Thương hiệu & Bảo vệ quyền lợi doanh nghiệp</span>
+            </div>
+            <div class="card-body p-4 bg-white">
+                <form asp-action="Register" method="post">
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2 small" })
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="username" class="form-label fw-bold text-secondary">Tên tài khoản đăng nhập <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Ví dụ: vinamilk_pr" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label fw-bold text-secondary">Mật khẩu <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Tối thiểu 6 ký tự..." required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="fullName" class="form-label fw-bold text-secondary">Họ và tên người đại diện <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-user-tie"></i></span>
+                                <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Ví dụ: Nguyễn Văn A" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label fw-bold text-secondary">Địa chỉ Email doanh nghiệp</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Ví dụ: pr@company.com" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="companyName" class="form-label fw-bold text-secondary">Tên Doanh nghiệp chính thức <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-building"></i></span>
+                            <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Ví dụ: Công ty Vinamilk" required />
+                        </div>
+                        <span class="small text-muted font-monospace d-block mt-1"><i class="fa-solid fa-circle-info text-info me-1"></i> Tên doanh nghiệp sẽ hiển thị trên Logo chạy chân trang và tác giả bài viết PR.</span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-warning btn-lg text-dark rounded-3 fw-bold text-uppercase" style="font-size: 0.95rem;">Đăng ký tài khoản <i class="fa-solid fa-user-plus ms-2"></i></button>
+                    </div>
+
+                    <div class="text-center">
+                        <span class="small text-muted">Doanh nghiệp đã có tài khoản? <a asp-action="Login" class="text-decoration-none fw-bold text-primary">Đăng nhập tại đây</a></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

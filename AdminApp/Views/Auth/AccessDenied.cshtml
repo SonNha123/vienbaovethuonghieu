@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Từ chối truy cập";
+}
+
+<div class="row justify-content-center my-5 py-5">
+    <div class="col-md-6 col-12 text-center bg-white border rounded-3 p-5 shadow-sm">
+        <i class="fa-solid fa-triangle-exclamation text-danger display-1 mb-4"></i>
+        <h2 class="brand-font text-uppercase text-danger mb-3">Từ chối truy cập</h2>
+        <p class="text-secondary fs-5 mb-4">Tài khoản của bạn không có đủ quyền hạn để truy cập vào phân hệ này. Xin vui lòng liên hệ Super Admin hệ thống hoặc sử dụng tài khoản có thẩm quyền.</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="http://localhost:5000" class="btn btn-primary rounded-pill font-monospace fw-bold px-4">Về Trang chủ</a>
+            <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-secondary rounded-pill font-monospace fw-bold px-4">Đăng nhập tài khoản khác</a>
+        </div>
+    </div>
+</div>

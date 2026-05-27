@@ -1,0 +1,120 @@
+@model List<New_folder.Models.Video>
+
+@{
+    ViewData["Title"] = "Tất cả Video";
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+}
+
+<!-- BREADCRUMB -->
+<div class="row mb-3">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-premium">
+                <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tất cả Video</li>
+            </ol>
+        </nav>
+        <div class="traditional-category-bar">
+            <span>TẤT CẢ VIDEO NỔI BẬT</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    @if (Model.Any())
+    {
+        @foreach (var video in Model)
+        {
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="border rounded-3 overflow-hidden bg-white shadow-sm h-100 d-flex flex-column transition-hover" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                    <a href="#" class="play-video-btn" data-video-url="@video.VideoUrl" data-video-title="@video.Title" title="@video.Title">
+                        <div class="video-widget-thumb" style="height: 200px; position: relative; width: 100%; overflow: hidden; background-color: #0f172a;">
+                            <img src="@(string.IsNullOrEmpty(video.ThumbnailUrl) ? "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" : video.ThumbnailUrl)" alt="@video.Title" class="w-100 h-100" style="object-fit: cover; transition: transform 0.35s ease;" />
+                            <div class="video-play-btn" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background-color: rgba(27, 116, 228, 0.9); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1.25rem; transition: background-color 0.25s, transform 0.25s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="p-3 d-flex flex-column flex-grow-1">
+                        <h6 class="brand-font mb-2" style="font-size: 0.95rem; line-height: 1.4; font-weight: 700;">
+                            <a href="#" class="play-video-btn text-decoration-none text-dark hover-primary" data-video-url="@video.VideoUrl" data-video-title="@video.Title">@video.Title</a>
+                        </h6>
+                        <div class="mt-auto pt-2 border-top text-muted small d-flex justify-content-between align-items-center">
+                            <span><i class="fa-regular fa-clock me-1"></i> @video.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            @if (video.IsFeatured)
+                            {
+                                <span class="badge bg-warning text-dark"><i class="fa-solid fa-star me-1"></i>Nổi bật</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- PAGINATION -->
+        @if (totalPages > 1)
+        {
+            <div class="col-12 mt-5">
+                <nav class="pagination-custom" aria-label="Phân trang video">
+                    @if (currentPage > 1)
+                    {
+                        <a asp-action="Videos" asp-route-page="@(currentPage - 1)" title="Trang trước">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-disabled"><i class="fa-solid fa-chevron-left"></i></span>
+                    }
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        if (i == currentPage)
+                        {
+                            <span class="page-active">@i</span>
+                        }
+                        else
+                        {
+                            <a asp-action="Videos" asp-route-page="@i">@i</a>
+                        }
+                    }
+
+                    @if (currentPage < totalPages)
+                    {
+                        <a asp-action="Videos" asp-route-page="@(currentPage + 1)" title="Trang sau">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-disabled"><i class="fa-solid fa-chevron-right"></i></span>
+                    }
+                </nav>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-5 bg-white border rounded-3">
+            <i class="fa-solid fa-video-slash fs-1 text-muted mb-3"></i>
+            <h5 class="text-dark">Chưa có video nào</h5>
+            <p class="text-muted small">Hãy quay lại sau hoặc liên hệ ban biên tập để cập nhật nội dung video mới.</p>
+            <a asp-action="Index" class="btn btn-primary btn-sm rounded-pill font-monospace fw-bold mt-2">Về trang chủ</a>
+        </div>
+    }
+</div>
+
+<style>
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    .transition-hover:hover .video-widget-thumb img {
+        transform: scale(1.05);
+    }
+    .transition-hover:hover .video-play-btn {
+        background-color: #0b2545 !important;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+</style>

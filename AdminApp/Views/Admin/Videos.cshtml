@@ -1,0 +1,167 @@
+@model List<New_folder.Models.Video>
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Video PR Doanh nghiệp";
+}
+
+<div class="row g-4">
+    <!-- LEFT SIDE: ADD VIDEO FORM (40%) -->
+    <div class="col-lg-4 col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-square-plus me-2 text-primary"></i> Thêm Video PR Mới</h4>
+            <form asp-action="CreateVideo" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Tiêu đề Video <span class="text-danger">*</span></label>
+                    <input type="text" name="title" class="form-control" placeholder="Ví dụ: Phóng sự giới thiệu thương hiệu Việt..." required />
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Liên kết Video (YouTube / Direct MP4 Link) <span class="text-danger">*</span></label>
+                    <input type="url" name="videoUrl" class="form-control" placeholder="Ví dụ: https://www.youtube.com/watch?v=..." required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Ảnh bìa video (Thumbnail)</label>
+                    <input type="file" name="thumbnailFile" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold text-uppercase rounded-3"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Lưu Video</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: VIDEOS LISTING (60%) -->
+    <div class="col-lg-8 col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-photo-film me-2 text-warning"></i> Thư viện Video PR Doanh nghiệp</h4>
+            @if (Model.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var video in Model)
+                    {
+                        <div class="col-md-6 col-12">
+                            <div class="card h-100 border overflow-hidden rounded-3">
+                                <div class="position-relative bg-dark" style="height: 150px;">
+                                    @if (video.VideoUrl.Contains("youtube.com") || video.VideoUrl.Contains("youtu.be"))
+                                    {
+                                        var youtubeId = "";
+                                        if (video.VideoUrl.Contains("v="))
+                                        {
+                                            youtubeId = video.VideoUrl.Substring(video.VideoUrl.IndexOf("v=") + 2);
+                                            if (youtubeId.Contains("&"))
+                                            {
+                                                youtubeId = youtubeId.Substring(0, youtubeId.IndexOf("&"));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            youtubeId = video.VideoUrl.Substring(video.VideoUrl.LastIndexOf("/") + 1);
+                                        }
+                                        <iframe class="w-100 h-100" src="https://www.youtube.com/embed/@youtubeId" title="@video.Title" frameborder="0" allowfullscreen></iframe>
+                                    }
+                                    else
+                                    {
+                                        <video class="w-100 h-100" controls poster="@video.ThumbnailUrl">
+                                            <source src="@video.VideoUrl" type="video/mp4">
+                                        </video>
+                                    }
+                                </div>
+                                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                                    <h5 class="fs-6 fw-bold text-dark lh-base mt-1">@video.Title</h5>
+                                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                        <span class="small text-muted"><i class="fa-regular fa-clock me-1"></i> @video.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                        <div class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-primary px-3 rounded-pill edit-video-btn"
+                                                    data-id="@video.Id"
+                                                    data-title="@video.Title"
+                                                    data-url="@video.VideoUrl"
+                                                    data-active="@(video.IsActive ? "true" : "false")">
+                                                <i class="fa-solid fa-pen me-1"></i> Sửa
+                                            </button>
+                                            <a asp-action="DeleteVideo" asp-route-id="@video.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Bạn có chắc chắn muốn xóa video này?')"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-video-slash fs-2 text-muted mb-3"></i>
+                    <p class="text-muted m-0">Chưa có video PR nào trong thư viện.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- EDIT VIDEO MODAL -->
+<div class="modal fade" id="editVideoModal" tabindex="-1" aria-labelledby="editVideoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold font-monospace" id="editVideoModalLabel"><i class="fa-solid fa-pen-to-square me-2"></i> CẬP NHẬT VIDEO PR</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditVideo" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" id="editVideoId" />
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Tiêu đề Video <span class="text-danger">*</span></label>
+                        <input type="text" name="title" id="editVideoTitle" class="form-control" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Liên kết Video (YouTube / Direct MP4 Link) <span class="text-danger">*</span></label>
+                        <input type="url" name="videoUrl" id="editVideoUrl" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Thay đổi ảnh bìa video mới (Để trống nếu giữ nguyên)</label>
+                        <input type="file" name="thumbnailFile" class="form-control" accept="image/*" />
+                    </div>
+
+                    <div class="form-check form-switch mt-3">
+                        <input class="form-check-input" type="checkbox" name="isActive" role="switch" id="editVideoActive" value="true" />
+                        <label class="form-check-label fw-bold text-secondary" for="editVideoActive">Trạng thái kích hoạt hiển thị video</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 font-monospace btn-sm" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 font-monospace btn-sm">CẬP NHẬT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.edit-video-btn').click(function() {
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                var url = $(this).data('url');
+                var active = $(this).data('active');
+
+                $('#editVideoId').val(id);
+                $('#editVideoTitle').val(title);
+                $('#editVideoUrl').val(url);
+
+                if (active === true || active === 'true') {
+                    $('#editVideoActive').prop('checked', true);
+                } else {
+                    $('#editVideoActive').prop('checked', false);
+                }
+
+                $('#editVideoModal').modal('show');
+            });
+        });
+    </script>
+}

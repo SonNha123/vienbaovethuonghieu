@@ -1,0 +1,135 @@
+@model List<New_folder.Models.Post>
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Tổng quan hệ thống";
+}
+
+<!-- METRICS ROWS -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="card shadow-sm border-0 bg-primary text-white p-3 rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-uppercase text-light-50 small font-monospace m-0">Bài viết bài PR</h6>
+                    <h2 class="fw-bold brand-font m-0">@ViewBag.TotalPosts</h2>
+                </div>
+                <div class="fs-1 opacity-50"><i class="fa-solid fa-newspaper"></i></div>
+            </div>
+            <a asp-action="Posts" class="text-white text-decoration-none mt-2 small">Chi tiết <i class="fa-solid fa-circle-arrow-right ms-1"></i></a>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="card shadow-sm border-0 bg-danger text-white p-3 rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-uppercase text-light-50 small font-monospace m-0">Tin chờ duyệt</h6>
+                    <h2 class="fw-bold brand-font m-0">@ViewBag.PendingPosts</h2>
+                </div>
+                <div class="fs-1 opacity-50"><i class="fa-solid fa-clock"></i></div>
+            </div>
+            <a asp-action="Posts" class="text-white text-decoration-none mt-2 small">Kiểm duyệt <i class="fa-solid fa-circle-arrow-right ms-1"></i></a>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="card shadow-sm border-0 bg-warning text-dark p-3 rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-uppercase text-dark-50 small font-monospace m-0">Banners QC</h6>
+                    <h2 class="fw-bold brand-font m-0">@ViewBag.TotalBanners</h2>
+                </div>
+                <div class="fs-1 opacity-50"><i class="fa-solid fa-rectangle-ad"></i></div>
+            </div>
+            <a asp-action="Banners" class="text-dark text-decoration-none mt-2 small">Quản lý <i class="fa-solid fa-circle-arrow-right ms-1"></i></a>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="card shadow-sm border-0 bg-success text-white p-3 rounded-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-uppercase text-light-50 small font-monospace m-0">Logo doanh nghiệp</h6>
+                    <h2 class="fw-bold brand-font m-0">@ViewBag.TotalPartners</h2>
+                </div>
+                <div class="fs-1 opacity-50"><i class="fa-solid fa-building"></i></div>
+            </div>
+            <a asp-action="PartnerLogos" class="text-white text-decoration-none mt-2 small">Chi tiết <i class="fa-solid fa-circle-arrow-right ms-1"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN WORK AREA -->
+<div class="row g-4">
+    <!-- PENDING PR ARTICLES QUEUE -->
+    <div class="col-lg-8 col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-hourglass-half me-2 text-danger"></i> Bài viết PR Doanh nghiệp chờ kiểm duyệt</h4>
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr class="table-light">
+                                <th>Tiêu đề bài viết</th>
+                                <th>Chuyên mục</th>
+                                <th>Doanh nghiệp</th>
+                                <th>Ngày gửi</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var post in Model)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark">@post.Title</td>
+                                    <td><span class="badge bg-light text-secondary">@post.Category?.Name</span></td>
+                                    <td class="small"><strong>@post.Author?.CompanyName</strong></td>
+                                    <td class="small text-muted">@post.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-success rounded-pill px-3 py-1 font-monospace fw-bold" onclick="approvePost(@post.Id, this)"><i class="fa-solid fa-check me-1"></i> Duyệt</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-envelope-open-text fs-2 text-muted mb-3"></i>
+                    <p class="text-muted m-0">Không có bài viết PR nháp nào đang chờ kiểm duyệt.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- QUICK OPTIONS -->
+    <div class="col-lg-4 col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-gears me-2 text-primary"></i> Lối tắt quản trị</h4>
+            <div class="d-grid gap-2">
+                <a asp-action="Posts" class="btn btn-outline-primary text-start p-3 rounded-3"><i class="fa-solid fa-pen-nib me-2"></i> Đăng bài viết PR mới</a>
+                <a asp-action="Banners" class="btn btn-outline-warning text-dark text-start p-3 rounded-3"><i class="fa-solid fa-image me-2"></i> Thêm mới Banner quảng cáo</a>
+                <a asp-action="Videos" class="btn btn-outline-info text-dark text-start p-3 rounded-3"><i class="fa-solid fa-circle-play me-2"></i> Thêm Video doanh nghiệp</a>
+                <a asp-action="PartnerLogos" class="btn btn-outline-success text-start p-3 rounded-3"><i class="fa-solid fa-upload me-2"></i> Upload logo đối tác mới</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function approvePost(id, btn) {
+            if (confirm("Bạn có chắc chắn muốn duyệt xuất bản bài viết PR doanh nghiệp này?")) {
+                $.post("/Admin/ApprovePost/" + id, function(res) {
+                    if (res.success) {
+                        $(btn).closest("tr").fadeOut(300, function() {
+                            $(this).remove();
+                            location.reload();
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+}

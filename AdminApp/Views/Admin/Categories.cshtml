@@ -1,0 +1,175 @@
+@model IEnumerable<New_folder.Models.Category>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Chuyên mục";
+}
+
+<div class="card shadow-sm border border-light-subtle rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 fw-bold brand-font text-primary"><i class="fa-solid fa-tags me-2"></i> DANH SÁCH CHUYÊN MỤC</h5>
+        <button class="btn btn-primary btn-sm rounded-pill px-3 font-monospace fw-bold" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+            <i class="fa-solid fa-plus me-1"></i> THÊM MỚI
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light font-monospace text-uppercase text-secondary" style="font-size: 0.85rem;">
+                    <tr>
+                        <th class="ps-4" style="width: 80px;">ID</th>
+                        <th>Tên chuyên mục</th>
+                        <th>Slug</th>
+                        <th class="text-center" style="width: 150px;">Thứ tự hiển thị</th>
+                        <th class="text-center" style="width: 180px;">Hiển thị Navbar</th>
+                        <th class="text-end pe-4" style="width: 180px;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 font-monospace fw-bold">#@item.Id</td>
+                            <td class="fw-bold">@item.Name</td>
+                            <td class="text-secondary font-monospace">@item.Slug</td>
+                            <td class="text-center font-monospace">@item.DisplayOrder</td>
+                            <td class="text-center">
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input toggle-nav-switch" type="checkbox" role="switch" data-id="@item.Id" @(item.IsShownOnNav ? "checked" : "") />
+                                </div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-outline-primary btn-sm rounded-circle me-1 edit-category-btn" 
+                                        data-id="@item.Id" 
+                                        data-name="@item.Name" 
+                                        data-order="@item.DisplayOrder" 
+                                        data-nav="@(item.IsShownOnNav ? "true" : "false")"
+                                        title="Chỉnh sửa">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <a asp-action="DeleteCategory" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm rounded-circle" onclick="return confirm('Bạn có chắc chắn muốn xóa chuyên mục này? Các bài viết thuộc chuyên mục này phải được chuyển sang danh mục khác trước khi xóa.')" title="Xóa">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE CATEGORY MODAL -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold font-monospace" id="createCategoryModalLabel"><i class="fa-solid fa-plus me-2"></i> THÊM CHUYÊN MỤC MỚI</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CreateCategory" method="post">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label font-monospace small text-secondary">Tên chuyên mục (*)</label>
+                        <input type="text" name="name" class="form-control" placeholder="Ví dụ: Góc nhìn Doanh nghiệp" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label font-monospace small text-secondary">Thứ tự hiển thị (Số nhỏ xếp trước)</label>
+                        <input type="number" name="displayOrder" class="form-control" value="0" />
+                    </div>
+                    <div class="form-check form-switch mb-2 mt-3">
+                        <input class="form-check-input" type="checkbox" name="isShownOnNav" role="switch" id="createIsShownOnNav" value="true" checked />
+                        <label class="form-check-label font-monospace small text-secondary" for="createIsShownOnNav">Hiển thị trên thanh Navbar chính</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 font-monospace btn-sm" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-monospace btn-sm">LƯU LẠI</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT CATEGORY MODAL -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold font-monospace" id="editCategoryModalLabel"><i class="fa-solid fa-pen-to-square me-2"></i> CẬP NHẬT CHUYÊN MỤC</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditCategory" method="post">
+                <input type="hidden" name="id" id="editCategoryId" />
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label font-monospace small text-secondary">Tên chuyên mục (*)</label>
+                        <input type="text" name="name" id="editCategoryName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label font-monospace small text-secondary">Thứ tự hiển thị (Số nhỏ xếp trước)</label>
+                        <input type="number" name="displayOrder" id="editCategoryOrder" class="form-control" />
+                    </div>
+                    <div class="form-check form-switch mb-2 mt-3">
+                        <input class="form-check-input" type="checkbox" name="isShownOnNav" role="switch" id="editCategoryNav" value="true" />
+                        <label class="form-check-label font-monospace small text-secondary" for="editCategoryNav">Hiển thị trên thanh Navbar chính</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 font-monospace btn-sm" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 font-monospace btn-sm">CẬP NHẬT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Fill edit modal dynamically
+            $('.edit-category-btn').click(function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var order = $(this).data('order');
+                var nav = $(this).data('nav');
+                
+                $('#editCategoryId').val(id);
+                $('#editCategoryName').val(name);
+                $('#editCategoryOrder').val(order);
+                
+                if (nav === true || nav === 'true') {
+                    $('#editCategoryNav').prop('checked', true);
+                } else {
+                    $('#editCategoryNav').prop('checked', false);
+                }
+                
+                $('#editCategoryModal').modal('show');
+            });
+
+            // Handle AJAX Toggle Nav switch
+            $('.toggle-nav-switch').change(function() {
+                var categoryId = $(this).data('id');
+                var switchElem = $(this);
+                
+                $.ajax({
+                    url: '/Admin/ToggleCategoryNav',
+                    type: 'POST',
+                    data: { id: categoryId },
+                    success: function(response) {
+                        if (response.success) {
+                            console.log('Nav visibility updated successfully to: ' + response.isShownOnNav);
+                        } else {
+                            alert('Lỗi: ' + response.message);
+                            // Revert state
+                            switchElem.prop('checked', !switchElem.prop('checked'));
+                        }
+                    },
+                    error: function() {
+                        alert('Đã xảy ra lỗi hệ thống khi kết nối đến máy chủ.');
+                        switchElem.prop('checked', !switchElem.prop('checked'));
+                    }
+                });
+            });
+        });
+    </script>
+}

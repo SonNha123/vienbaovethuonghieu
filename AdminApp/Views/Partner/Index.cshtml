@@ -1,0 +1,189 @@
+@model List<New_folder.Models.Post>
+
+@{
+    ViewData["Title"] = "Doanh nghiệp Dashboard";
+    var user = ViewBag.User as New_folder.Models.User;
+    var logo = ViewBag.Logo as New_folder.Models.PartnerLogo;
+    var categories = ViewBag.Categories as List<New_folder.Models.Category> ?? new List<New_folder.Models.Category>();
+}
+
+<!-- HEADER -->
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white border-0 shadow-sm rounded-3 p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <span class="badge bg-warning text-dark mb-2 font-monospace fw-bold text-uppercase">PHÂN HỆ DOANH NGHIỆP</span>
+                    <h2 class="brand-font fs-2 text-white m-0">@user?.CompanyName</h2>
+                    <p class="m-0 text-light-50 mt-1">Đại diện: <strong>@user?.FullName</strong> | Email: @user?.Email</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-warning text-dark fw-bold rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#submitPRModal">
+                        <i class="fa-solid fa-file-signature me-2"></i> Gửi bài viết PR mới
+                    </button>
+                    <a asp-controller="Auth" asp-action="Logout" class="btn btn-danger fw-bold rounded-pill px-3"><i class="fa-solid fa-right-from-bracket"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BODY -->
+<div class="row g-4">
+    <!-- LEFT SIDE: LOGO UPLOAD & PROFILE -->
+    <div class="col-lg-4 col-12">
+        <div class="card shadow-sm border rounded-3 p-4 mb-4 bg-white">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i> LOGO DOANH NGHIỆP THÀNH VIÊN</h4>
+            
+            <div class="text-center mb-4 bg-light p-4 rounded-3 border border-dashed">
+                @if (logo != null)
+                {
+                    <img src="@logo.LogoUrl" alt="Company Logo" class="img-fluid" style="max-height: 80px;" />
+                    <span class="badge bg-success text-white d-block mt-3 font-monospace text-uppercase">Đang chạy ở chân trang Portal</span>
+                }
+                else
+                {
+                    <i class="fa-solid fa-building fs-1 text-muted opacity-30 mb-3"></i>
+                    <p class="text-muted small m-0">Doanh nghiệp chưa tải lên logo thương hiệu.</p>
+                }
+            </div>
+
+            <form asp-action="UpdateLogo" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Tải lên Logo mới (PNG/JPG)</label>
+                    <input type="file" name="logoFile" class="form-control" accept="image/*" required />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Liên kết Website doanh nghiệp</label>
+                    <input type="url" name="websiteUrl" class="form-control" placeholder="https://yourcompany.com" value="@(logo?.WebsiteUrl)" />
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary rounded-3 fw-bold text-uppercase"><i class="fa-solid fa-floppy-disk me-2"></i> Cập nhật Logo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: PARTNER'S ARTICLES GRID -->
+    <div class="col-lg-8 col-12">
+        <div class="card shadow-sm border rounded-3 p-4 bg-white">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-list-check me-2 text-warning"></i> Bài viết PR đã gửi</h4>
+            
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr class="table-light">
+                                <th>Ảnh bìa</th>
+                                <th>Tiêu đề bài viết PR</th>
+                                <th>Chuyên mục</th>
+                                <th>Ngày gửi</th>
+                                <th class="text-center">Trạng thái duyệt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var post in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div style="width: 80px; height: 50px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border-color);">
+                                            <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=200" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" />
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold">@post.Title</td>
+                                    <td><span class="badge bg-light text-secondary">@post.Category?.Name</span></td>
+                                    <td class="small text-muted font-monospace">@post.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">
+                                        @if (post.IsApproved)
+                                        {
+                                            <span class="badge bg-success rounded-pill px-3 font-monospace text-uppercase"><i class="fa-solid fa-circle-check me-1"></i> Đã xuất bản</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger rounded-pill px-3 font-monospace text-uppercase"><i class="fa-solid fa-hourglass-half me-1"></i> Chờ duyệt</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-paper-plane fs-1 text-muted mb-3 opacity-30"></i>
+                    <h5 class="text-dark">Chưa gửi bài viết PR nào</h5>
+                    <p class="text-muted small">Hãy bấm nút "Gửi bài viết PR mới" ở góc trên bên phải để soạn thảo và gửi bài viết đầu tiên cho Ban biên tập kiểm duyệt.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- SUBMIT PR DIALOG -->
+<div class="modal fade" id="submitPRModal" tabindex="-1" aria-labelledby="submitPRModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header bg-primary text-white py-3 border-0">
+                <h5 class="modal-title brand-font fs-5 text-white text-uppercase" id="submitPRModalLabel"><i class="fa-solid fa-file-pen me-2 text-warning"></i> Soạn thảo bài viết PR mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="SubmitPR" method="post" enctype="multipart/form-data">
+                <div class="modal-body p-4 bg-white">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8 col-12">
+                            <label class="form-label fw-bold text-secondary">Tiêu đề bài viết PR <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" placeholder="Tiêu đề bài viết..." required />
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold text-secondary">Chuyên mục đăng bài <span class="text-danger">*</span></label>
+                            <select name="categoryId" class="form-select" required>
+                                <option value="">-- Chọn chuyên mục --</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Ảnh minh họa bài viết (Cover image)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Tóm tắt ngắn (Sapo)</label>
+                        <textarea name="summary" class="form-control" rows="2" placeholder="Tóm tắt bài viết..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Nội dung chi tiết bài viết (HTML) <span class="text-danger">*</span></label>
+                        <textarea name="content" class="form-control" rows="10" placeholder="Soạn thảo bài viết PR..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Đóng lại</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4"><i class="fa-solid fa-paper-plane me-2"></i> Gửi duyệt bài viết</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

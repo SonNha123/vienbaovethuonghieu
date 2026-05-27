@@ -1,0 +1,198 @@
+@model New_folder.Models.Post
+
+@{
+    ViewData["Title"] = Model.Title;
+    var relatedPosts = ViewBag.RelatedPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
+    var latestPosts = ViewBag.LatestPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
+    var sidebarBanners = ViewBag.SidebarBanners as List<New_folder.Models.Banner> ?? new List<New_folder.Models.Banner>();
+}
+
+<!-- BREADCRUMB -->
+<div class="row mb-3">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-premium">
+                <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="Category" asp-route-slug="@Model.Category?.Slug">@Model.Category?.Name</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Chi tiết bài viết</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: ARTICLE FULL READ (70%) -->
+    <div class="col-lg-8">
+        <article class="bg-white border rounded-3 p-4 p-md-5 shadow-sm">
+            <header class="mb-4 pb-4 border-bottom">
+                <span class="badge bg-danger text-uppercase font-monospace mb-2">@Model.Category?.Name</span>
+                <h1 class="brand-font fs-2 text-dark lh-base">@Model.Title</h1>
+                <div class="d-flex align-items-center text-muted small mt-3 flex-wrap gap-2">
+                    <span><i class="fa-regular fa-clock me-1"></i> Đăng lúc: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    <span><i class="fa-regular fa-user me-1"></i> Tác giả: <strong>@Model.Author?.FullName</strong></span>
+                    @if (!string.IsNullOrEmpty(Model.Author?.CompanyName))
+                    {
+                        <span><i class="fa-solid fa-building me-1"></i> Doanh nghiệp: <strong>@Model.Author.CompanyName</strong></span>
+                    }
+                </div>
+            </header>
+
+            @if (!string.IsNullOrEmpty(Model.Summary))
+            {
+                <div class="p-3 bg-light border-start border-danger border-4 rounded-end-3 mb-4 fw-bold text-secondary">
+                    @Model.Summary
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="text-center mb-4 overflow-hidden rounded-3">
+                    <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid" style="max-height: 450px; width: 100%; object-fit: cover;" />
+                </div>
+            }
+
+            <div class="article-content text-dark fs-6 lh-lg mb-5" style="text-align: justify; word-break: break-word;">
+                @Html.Raw(Model.Content)
+            </div>
+
+            <footer class="pt-4 border-top">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <span class="small text-muted me-2 font-monospace fw-bold"><i class="fa-solid fa-tags me-1"></i> Từ khóa:</span>
+                        <span class="badge bg-light text-secondary">PR Thương hiệu</span>
+                        <span class="badge bg-light text-secondary">Bảo vệ Doanh nghiệp</span>
+                    </div>
+                </div>
+            </footer>
+        </article>
+
+        <!-- RELATED ARTICLES (Below Article) -->
+        @if (relatedPosts.Any())
+        {
+            <section class="mt-4 bg-white p-4 border rounded-3 shadow-sm">
+                <div class="traditional-category-bar" style="margin-bottom: 15px;">
+                    <span>Bài viết liên quan</span>
+                </div>
+                <div class="row g-3">
+                    @foreach (var related in relatedPosts.Take(4))
+                    {
+                        <div class="col-md-6 col-12">
+                            <div class="d-flex align-items-start gap-3 p-2">
+                                <div style="width: 100px; height: 72px; overflow: hidden; border-radius: 6px; flex-shrink: 0; background-color: #f8fafc;">
+                                    <a asp-action="PostDetail" asp-route-slug="@related.Slug">
+                                        <img src="@(string.IsNullOrEmpty(related.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=200" : related.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" alt="@related.Title" />
+                                    </a>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1" style="font-size: 0.85rem; font-weight: 700; line-height: 1.35;">
+                                        <a asp-action="PostDetail" asp-route-slug="@related.Slug" class="text-decoration-none text-dark" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@related.Title</a>
+                                    </h6>
+                                    <span class="text-muted" style="font-size: 0.72rem;"><i class="fa-regular fa-clock me-1"></i> @related.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+
+    <!-- RIGHT: SIDEBAR (30%) -->
+    <div class="col-lg-4">
+        <div class="sidebar-sticky">
+
+            <!-- Widget: Bài viết cùng chuyên mục -->
+            @if (relatedPosts.Any())
+            {
+                <div class="sidebar-widget">
+                    <div class="sidebar-widget-title">
+                        <i class="fa-solid fa-folder-open"></i> Cùng chuyên mục
+                    </div>
+                    <ul class="sidebar-news-list">
+                        @foreach (var rp in relatedPosts.Take(5))
+                        {
+                            <li class="sidebar-news-item">
+                                <div class="sidebar-news-thumb">
+                                    <a asp-action="PostDetail" asp-route-slug="@rp.Slug">
+                                        <img src="@(string.IsNullOrEmpty(rp.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=120" : rp.ImageUrl)" alt="@rp.Title" />
+                                    </a>
+                                </div>
+                                <div class="sidebar-news-body">
+                                    <a asp-action="PostDetail" asp-route-slug="@rp.Slug">@rp.Title</a>
+                                    <span class="sidebar-news-date"><i class="fa-regular fa-clock me-1"></i> @rp.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- Widget: Banner Quảng cáo -->
+            @if (sidebarBanners.Any())
+            {
+                <div class="sidebar-banner-rotator" data-delay="4500">
+                    @for (int i = 0; i < sidebarBanners.Count; i++)
+                    {
+                        var banner = sidebarBanners[i];
+                        <a href="@banner.RedirectUrl" target="_blank" class="sidebar-banner-slide @(i == 0 ? "active" : "")" title="@banner.Title">
+                            <img src="@banner.ImageUrl" alt="@banner.Title" />
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="sidebar-banner">
+                    <div class="sidebar-banner-placeholder">
+                        <i class="fa-solid fa-rectangle-ad fs-2 mb-2 text-warning"></i>
+                        <span>QUẢNG CÁO DOANH NGHIỆP</span>
+                        <span class="small mt-2" style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">LIÊN HỆ PR THƯƠNG HIỆU</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Widget: Tin mới nhất (toàn site) -->
+            @if (latestPosts.Any())
+            {
+                <div class="sidebar-widget">
+                    <div class="sidebar-widget-title">
+                        <i class="fa-solid fa-newspaper"></i> Tin mới nhất
+                    </div>
+                    <ul class="sidebar-news-list">
+                        @foreach (var lp in latestPosts.Take(5))
+                        {
+                            <li class="sidebar-news-item">
+                                <div class="sidebar-news-thumb">
+                                    <a asp-action="PostDetail" asp-route-slug="@lp.Slug">
+                                        <img src="@(string.IsNullOrEmpty(lp.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=120" : lp.ImageUrl)" alt="@lp.Title" />
+                                    </a>
+                                </div>
+                                <div class="sidebar-news-body">
+                                    <a asp-action="PostDetail" asp-route-slug="@lp.Slug">@lp.Title</a>
+                                    <span class="sidebar-news-date">
+                                        <i class="fa-regular fa-clock me-1"></i> @lp.CreatedAt.ToString("dd/MM/yyyy")
+                                        @if (lp.Category != null)
+                                        {
+                                            <span class="ms-1 text-primary" style="font-size: 0.68rem;">| @lp.Category.Name</span>
+                                        }
+                                    </span>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <!-- Widget: Về ban biên tập -->
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-title">
+                    <i class="fa-solid fa-shield-halved"></i> Về ban biên tập
+                </div>
+                <div class="p-3">
+                    <p class="small text-muted mb-0">Viện Phát triển Thương hiệu và Chống hàng giả là đơn vị chính thức bảo hộ thông tin doanh nghiệp. Các nội dung được đăng tải đảm bảo tính xác thực pháp lý cao.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

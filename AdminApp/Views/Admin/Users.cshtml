@@ -1,0 +1,236 @@
+@model IEnumerable<New_folder.Models.User>
+@inject New_folder.Models.AppDbContext DbContext
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Phân quyền tài khoản";
+    var roles = DbContext.Roles.ToList();
+}
+
+<div class="card shadow-sm border border-light-subtle rounded-3">
+    <div class="card-header bg-white py-3">
+        <h5 class="m-0 fw-bold brand-font text-primary"><i class="fa-solid fa-users-gear me-2"></i> DANH SÁCH TÀI KHOẢN HỆ THỐNG</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light font-monospace text-uppercase text-secondary" style="font-size: 0.85rem;">
+                    <tr>
+                        <th class="ps-4" style="width: 80px;">ID</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ và tên</th>
+                        <th>Doanh nghiệp / Đơn vị</th>
+                        <th>Vai trò lớn (Role)</th>
+                        <th class="text-center" style="width: 120px;">Trạng thái</th>
+                        <th class="text-end pe-4" style="width: 180px;">Phân quyền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var isSelf = User.Identity?.Name == item.Username;
+                        <tr>
+                            <td class="ps-4 font-monospace fw-bold">#@item.Id</td>
+                            <td class="fw-bold text-primary font-monospace">@item.Username</td>
+                            <td>@item.FullName</td>
+                            <td>@(!string.IsNullOrEmpty(item.CompanyName) ? item.CompanyName : "N/A")</td>
+                            <td>
+                                @if (item.RoleId == 1)
+                                {
+                                    <span class="badge bg-danger text-uppercase font-monospace">SuperAdmin</span>
+                                }
+                                else if (item.RoleId == 2)
+                                {
+                                    <span class="badge bg-warning text-dark text-uppercase font-monospace">Editor</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info text-dark text-uppercase font-monospace">Partner</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (item.IsActive)
+                                {
+                                    <span class="badge bg-success rounded-pill px-2">Đang hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary rounded-pill px-2">Bị khóa</span>
+                                }
+                            </td>
+                            <td class="text-end pe-4">
+                                @if (isSelf)
+                                {
+                                    <span class="text-muted small font-monospace italic">Tài khoản của bạn</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3 font-monospace fw-bold edit-permissions-btn" 
+                                            data-id="@item.Id" 
+                                            data-username="@item.Username" 
+                                            data-fullname="@item.FullName" 
+                                            data-roleid="@item.RoleId"
+                                            title="Phân quyền chi tiết">
+                                        <i class="fa-solid fa-user-shield me-1"></i> PHÂN QUYỀN
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- DETAILED PERMISSION MODAL -->
+<div class="modal fade" id="permissionModal" tabindex="-1" aria-labelledby="permissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold font-monospace" id="permissionModalLabel"><i class="fa-solid fa-user-shield me-2"></i> THIẾT LẬP QUYỀN HẠN CHI TIẾT</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditUserPermissions" method="post">
+                <input type="hidden" name="userId" id="permUserId" />
+                <div class="modal-body p-4">
+                    <div class="row align-items-center mb-4 pb-3 border-bottom g-3">
+                        <div class="col-md-6 col-12">
+                            <span class="small text-secondary font-monospace d-block">TÀI KHOẢN ĐANG CẤU HÌNH</span>
+                            <span class="fs-5 fw-bold text-primary font-monospace" id="permUsername">admin</span>
+                            <span class="text-secondary small ms-2" id="permFullName">(Full Name)</span>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <label class="form-label font-monospace small text-secondary d-block m-0 mb-1">NHÓM QUYỀN LỚN (ROLE PRESET)</label>
+                            <div class="d-flex gap-2">
+                                @foreach (var r in roles)
+                                {
+                                    <div class="form-check form-check-inline border rounded p-2 px-3 m-0 bg-light flex-grow-1 text-center cursor-pointer">
+                                        <input class="form-check-input role-radio-preset" type="radio" name="roleId" id="role_@r.Id" value="@r.Id" />
+                                        <label class="form-check-label fw-bold font-monospace text-uppercase" for="role_@r.Id" style="font-size: 0.8rem;">@r.Name</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold brand-font text-secondary mb-3"><i class="fa-solid fa-table-list me-2"></i> PHÂN QUYỀN THEO TỪNG MODULE CHỨC NĂNG</h6>
+                    <div class="table-responsive border rounded">
+                        <table class="table align-middle table-striped mb-0 text-center">
+                            <thead class="table-dark font-monospace" style="font-size: 0.85rem;">
+                                <tr>
+                                    <th class="text-start ps-3" style="width: 250px;">MODULE CHỨC NĂNG</th>
+                                    <th>QUYỀN TẠO / THÊM MỚI</th>
+                                    <th>QUYỀN CHỈNH SỬA</th>
+                                    <th>QUYỀN XÓA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var modules = new[] { 
+                                        new { Code = "Posts", Name = "Tin bài viết (Posts)" },
+                                        new { Code = "Categories", Name = "Chuyên mục (Categories)" },
+                                        new { Code = "Banners", Name = "Banners quảng cáo" },
+                                        new { Code = "Videos", Name = "Videos PR" },
+                                        new { Code = "PartnerLogos", Name = "Logos đối tác" }
+                                    };
+                                }
+                                @foreach (var m in modules)
+                                {
+                                    <tr>
+                                        <td class="text-start ps-3 fw-bold text-secondary font-monospace">@m.Name</td>
+                                        <td>
+                                            <input class="form-check-input perm-checkbox" type="checkbox" name="perm_@(m.Code)_Create" value="true" id="chk_@(m.Code)_Create" />
+                                        </td>
+                                        <td>
+                                            <input class="form-check-input perm-checkbox" type="checkbox" name="perm_@(m.Code)_Edit" value="true" id="chk_@(m.Code)_Edit" />
+                                        </td>
+                                        <td>
+                                            <input class="form-check-input perm-checkbox" type="checkbox" name="perm_@(m.Code)_Delete" value="true" id="chk_@(m.Code)_Delete" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 text-secondary small font-monospace">
+                        <i class="fa-solid fa-info-circle me-1 text-primary"></i> <strong>Lưu ý:</strong> Tài khoản thuộc nhóm <strong>SuperAdmin</strong> sẽ luôn có toàn bộ quyền (Thêm, Sửa, Xóa) trên tất cả các module hệ thống mà không cần tích chọn thủ công.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 font-monospace btn-sm" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 font-monospace btn-sm">LƯU CẤU HÌNH</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Fill permissions dynamically when click "Phân quyền"
+            $('.edit-permissions-btn').click(function() {
+                var userId = $(this).data('id');
+                var username = $(this).data('username');
+                var fullname = $(this).data('fullname');
+                var roleId = $(this).data('roleid');
+                
+                $('#permUserId').val(userId);
+                $('#permUsername').text(username);
+                $('#permFullName').text('(' + fullname + ')');
+                
+                // Select role radio
+                $('input[name="roleId"][value="' + roleId + '"]').prop('checked', true);
+                
+                // Clear all checkboxes
+                $('.perm-checkbox').prop('checked', false);
+                
+                // Call AJAX to get current permissions for this user
+                $.ajax({
+                    url: '/Admin/GetUserPermissions',
+                    type: 'GET',
+                    data: { userId: userId },
+                    success: function(response) {
+                        if (response.success) {
+                            response.data.forEach(function(p) {
+                                if (p.canCreate) $('#chk_' + p.moduleName + '_Create').prop('checked', true);
+                                if (p.canEdit) $('#chk_' + p.moduleName + '_Edit').prop('checked', true);
+                                if (p.canDelete) $('#chk_' + p.moduleName + '_Delete').prop('checked', true);
+                            });
+                        }
+                        $('#permissionModal').modal('show');
+                    },
+                    error: function() {
+                        alert('Không thể tải thông tin phân quyền của tài khoản này từ máy chủ.');
+                    }
+                });
+            });
+
+            // Handle Role Preset selection with JavaScript to auto-toggle checkboxes
+            $('.role-radio-preset').change(function() {
+                var selectedRoleId = $(this).val();
+                
+                if (selectedRoleId === '1') { // SuperAdmin
+                    // Tích tất cả ô
+                    $('.perm-checkbox').prop('checked', true);
+                } 
+                else if (selectedRoleId === '2') { // Editor
+                    // Clear all first
+                    $('.perm-checkbox').prop('checked', false);
+                    // Tích bài viết và chuyên mục đầy đủ quyền
+                    $('#chk_Posts_Create, #chk_Posts_Edit, #chk_Posts_Delete').prop('checked', true);
+                    $('#chk_Categories_Create, #chk_Categories_Edit, #chk_Categories_Delete').prop('checked', true);
+                    // Quyền xem/thêm/sửa video và partner logos
+                    $('#chk_Videos_Create, #chk_Videos_Edit').prop('checked', true);
+                    $('#chk_PartnerLogos_Create, #chk_PartnerLogos_Edit').prop('checked', true);
+                } 
+                else if (selectedRoleId === '3') { // Partner
+                    // Clear all first
+                    $('.perm-checkbox').prop('checked', false);
+                    // Chỉ tích thêm/sửa bài viết (Để gửi nháp PR)
+                    $('#chk_Posts_Create, #chk_Posts_Edit').prop('checked', true);
+                }
+            });
+        });
+    </script>
+}

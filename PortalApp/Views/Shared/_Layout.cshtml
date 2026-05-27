@@ -1,0 +1,323 @@
+@inject New_folder.Models.AppDbContext DbContext
+
+@{
+    var categories = DbContext.Categories.Where(c => c.IsShownOnNav).OrderBy(c => c.DisplayOrder).ToList();
+    var partners = DbContext.PartnerLogos.Where(p => p.IsActive).OrderBy(p => p.DisplayOrder).ToList();
+    
+    var leftFloatBanners = DbContext.Banners
+        .Where(b => b.Position == "Sidebar" && b.Title.Contains("Trái") && b.IsActive && b.StartDate <= DateTime.Now && b.EndDate >= DateTime.Now)
+        .OrderByDescending(b => b.CreatedAt)
+        .ToList();
+    
+    var rightFloatBanners = DbContext.Banners
+        .Where(b => b.Position == "Sidebar" && b.Title.Contains("Phải") && b.IsActive && b.StartDate <= DateTime.Now && b.EndDate >= DateTime.Now)
+        .OrderByDescending(b => b.CreatedAt)
+        .ToList();
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Viện Phát triển Thương hiệu và Chống hàng giả</title>
+    
+    <!-- CSS Bootstrap 5 & FontAwesome -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+    <!-- FLOATING BANNER LEFT -->
+    <div class="float-banner float-banner-left">
+        @if (leftFloatBanners.Any())
+        {
+            <div class="banner-rotator" data-delay="4000">
+                @for (int i = 0; i < leftFloatBanners.Count; i++)
+                {
+                    var banner = leftFloatBanners[i];
+                    <a href="@banner.RedirectUrl" target="_blank" class="banner-slide @(i == 0 ? "active" : "")">
+                        <img src="@banner.ImageUrl" alt="@banner.Title" class="w-100 h-100" style="object-fit: cover;" />
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Default placeholder left banner -->
+            <div style="background: linear-gradient(180deg, #133A7C, #29BDF4); color: #fff; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 15px; font-weight: bold; font-size: 0.9rem;">
+                <i class="fa-solid fa-rectangle-ad fs-2 mb-2 text-warning"></i>
+                <span>QUẢNG CÁO DOANH NGHIỆP</span>
+                <span class="small mt-2" style="font-size: 0.7rem; font-weight: normal; opacity: 0.8;">LIÊN HỆ PR THƯƠNG HIỆU</span>
+            </div>
+        }
+    </div>
+
+    <!-- FLOATING BANNER RIGHT -->
+    <div class="float-banner float-banner-right">
+        @if (rightFloatBanners.Any())
+        {
+            <div class="banner-rotator" data-delay="4000">
+                @for (int i = 0; i < rightFloatBanners.Count; i++)
+                {
+                    var banner = rightFloatBanners[i];
+                    <a href="@banner.RedirectUrl" target="_blank" class="banner-slide @(i == 0 ? "active" : "")">
+                        <img src="@banner.ImageUrl" alt="@banner.Title" class="w-100 h-100" style="object-fit: cover;" />
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <!-- Default placeholder right banner -->
+            <div style="background: linear-gradient(180deg, #133A7C, #29BDF4); color: #fff; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 15px; font-weight: bold; font-size: 0.9rem;">
+                <i class="fa-solid fa-rectangle-ad fs-2 mb-2 text-warning"></i>
+                <span>AN TOÀN TIẾT KIỆM</span>
+                <span class="small mt-2" style="font-size: 0.7rem; font-weight: normal; opacity: 0.8;">BẢO HỘ THƯƠNG HIỆU VIỆT</span>
+            </div>
+        }
+    </div>
+
+    <!-- MAIN NEWSPAPER CONTENT CONTAINER -->
+    <div class="main-wrapper">
+        
+        <!-- BRAND HEADER BANNER WITH IMAGE -->
+        <div class="header-brand-banner p-0" style="min-height: auto; background: none;">
+            <a asp-controller="Home" asp-action="Index" style="display: block; width: 100%;">
+                <img src="~/uploads/banners/banner.png" alt="Viện Phát triển Thương hiệu và Chống hàng giả" class="w-100" style="display: block; height: auto;" />
+            </a>
+        </div>
+
+        <!-- CENTERED FULL-WIDTH SEARCH BAR PILL -->
+        <div class="search-section">
+            <form class="search-bar-pill" asp-controller="Home" asp-action="Search" method="get">
+                <input type="text" name="query" placeholder="Nhập nội dung tìm kiếm" aria-label="Search" required>
+                <div class="search-btn-wrapper">
+                    <span class="search-sep">|</span>
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- LIGHT BLUE NAVIGATION NAV BAR FROM SCREENSHOT -->
+        <nav class="navbar navbar-expand-lg navbar-light navbar-custom">
+            <div class="container-fluid px-0">
+                <button class="navbar-toggler ms-auto me-3 my-2" type="button" data-bs-toggle="collapse" data-bs-target="#baoveNav" aria-controls="baoveNav" aria-expanded="false" aria-label="Toggle navigation" style="border-color: rgba(19, 58, 124, 0.15); background-color: rgba(19, 58, 124, 0.03);">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="baoveNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" asp-controller="Home" asp-action="Index" style="color: #1b74e4 !important;">
+                                <i class="fa-solid fa-house-chimney me-1" style="color: #1b74e4;"></i> Trang chủ
+                            </a>
+                        </li>
+                        @foreach (var cat in categories)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Category" asp-route-slug="@cat.Slug">
+                                    @cat.Name
+                                    @if (cat.Name != "Liên hệ")
+                                    {
+                                    }
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN BODY VIEWPORT -->
+        <main role="main" class="p-4 bg-white">
+            @RenderBody()
+        </main>
+
+        <!-- PARTNER LOGOS BOTTOM GRID -->
+        <section class="logo-grid">
+            <div class="logo-marquee-track">
+                @if (partners.Any())
+                {
+                    foreach (var partner in partners)
+                    {
+                        <a href="@partner.WebsiteUrl" target="_blank" title="@partner.CompanyName">
+                            <img src="@partner.LogoUrl" alt="@partner.CompanyName" />
+                        </a>
+                    }
+                }
+                else
+                {
+                    <!-- Static fallback partners from old page -->
+                    <a href="#"><img src="https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?q=80&w=120&h=40&fit=crop" alt="iCheck" style="filter: grayscale(100%); opacity: 0.5;" /></a>
+                    <a href="#"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=120&h=40&fit=crop" alt="eMatch" style="filter: grayscale(100%); opacity: 0.5;" /></a>
+                    <a href="#"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=120&h=40&fit=crop" alt="EVN" style="filter: grayscale(100%); opacity: 0.5;" /></a>
+                }
+            </div>
+        </section>
+
+        <!-- TRADITIONAL LIGHT-BLUE FOOTER (#29BDF4) -->
+        <footer class="traditional-footer-top">
+            <div class="container-fluid px-5">
+                <div class="row g-4">
+                    <div class="col-md-6 col-12">
+                        <h4>Về chúng tôi</h4>
+                        <p class="small m-0 text-white opacity-90">Hội bảo vệ thương hiệu Việt Nam đồng hành bảo vệ uy tín doanh nghiệp và quyền lợi chính đáng của người tiêu dùng.</p>
+                        <p class="small mt-2 text-white"><i class="fa-solid fa-location-dot me-2"></i> Trụ sở chính: Hà Nội, Việt Nam</p>
+                        <p class="small text-white"><i class="fa-solid fa-envelope me-2"></i> Email: lienhe@baovethuonghieu.org</p>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <h4>Danh mục chính</h4>
+                        <ul>
+                            @foreach (var cat in categories.Take(4))
+                            {
+                                <li><a asp-controller="Home" asp-action="Category" asp-route-slug="@cat.Slug"><i class="fa-solid fa-circle-arrow-right me-1 small"></i> @cat.Name</a></li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <h4>Liên kết ngoài</h4>
+                        <ul>
+                            <li><a href="#" target="_blank"><i class="fa-solid fa-link me-1 small"></i> Cổng thông tin Chính phủ</a></li>
+                            <li><a href="#" target="_blank"><i class="fa-solid fa-link me-1 small"></i> Cục Quản lý thị trường</a></li>
+                            <li><a href="#" target="_blank"><i class="fa-solid fa-link me-1 small"></i> Viện Chống hàng giả</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- TRADITIONAL NAVY-BLUE FOOTER BOTTOM (#133A7C) -->
+        <div class="traditional-footer-bottom text-center">
+            <div class="container-fluid">
+                <p class="m-0 small opacity-75">&copy; @DateTime.Now.Year Viện Phát triển thương hiệu và Chống hàng giả. Bản quyền đã được bảo hộ.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // Premium seamless infinite marquee loop for partner logos
+        const logoGrid = document.querySelector('.logo-grid');
+        const originalTrack = document.querySelector('.logo-marquee-track');
+        if (logoGrid && originalTrack) {
+            // Duplicate the track once dynamically to allow perfect infinite wrapping
+            const cloneTrack = originalTrack.cloneNode(true);
+            logoGrid.appendChild(cloneTrack);
+        }
+
+        // Automatic cross-fade rotation for floating sidebar banners, middle banners, and standard sidebar banners
+        document.addEventListener("DOMContentLoaded", function () {
+            // Rotators for Left/Right Floating Sidebar Banners
+            document.querySelectorAll(".banner-rotator").forEach(function (rotator) {
+                const slides = rotator.querySelectorAll(".banner-slide");
+                if (slides.length <= 1) return;
+                
+                let currentIndex = 0;
+                const delay = parseInt(rotator.getAttribute("data-delay")) || 4000;
+                
+                setInterval(function () {
+                    slides[currentIndex].classList.remove("active");
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    slides[currentIndex].classList.add("active");
+                }, delay);
+            });
+
+            // Rotators for Horizontal Middle Banners
+            document.querySelectorAll(".banner-middle-rotator").forEach(function (rotator) {
+                const slides = rotator.querySelectorAll(".banner-middle-slide");
+                if (slides.length <= 1) return;
+                
+                let currentIndex = 0;
+                const delay = parseInt(rotator.getAttribute("data-delay")) || 5000;
+                
+                setInterval(function () {
+                    slides[currentIndex].classList.remove("active");
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    slides[currentIndex].classList.add("active");
+                }, delay);
+            });
+
+            // Rotators for Standard Sidebar Banners
+            document.querySelectorAll(".sidebar-banner-rotator").forEach(function (rotator) {
+                const slides = rotator.querySelectorAll(".sidebar-banner-slide");
+                if (slides.length <= 1) return;
+                
+                let currentIndex = 0;
+                const delay = parseInt(rotator.getAttribute("data-delay")) || 4500;
+                
+                setInterval(function () {
+                    slides[currentIndex].classList.remove("active");
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    slides[currentIndex].classList.add("active");
+                }, delay);
+            });
+
+            // Video modal handler
+            const videoModalEl = document.getElementById('videoModal');
+            if (videoModalEl) {
+                const videoModal = new bootstrap.Modal(videoModalEl);
+                const videoContainer = document.getElementById('videoContainer');
+                const videoModalLabel = document.getElementById('videoModalLabel');
+
+                document.addEventListener('click', function (e) {
+                    const btn = e.target.closest('.play-video-btn');
+                    if (!btn) return;
+                    
+                    e.preventDefault();
+                    const url = btn.getAttribute('data-video-url');
+                    const title = btn.getAttribute('data-video-title') || 'ĐANG PHÁT VIDEO';
+                    
+                    videoModalLabel.textContent = title;
+                    
+                    // Parse YouTube URL
+                    const ytId = getYouTubeId(url);
+                    if (ytId) {
+                        videoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-100 h-100 border-0"></iframe>`;
+                    } else {
+                        // Direct MP4 link
+                        videoContainer.innerHTML = `<video src="${url}" controls autoplay class="w-100 h-100"></video>`;
+                    }
+                    
+                    videoModal.show();
+                });
+
+                // Clear iframe src on close to stop audio/video playing
+                videoModalEl.addEventListener('hidden.bs.modal', function () {
+                    videoContainer.innerHTML = '';
+                });
+
+                function getYouTubeId(url) {
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                    const match = url.match(regExp);
+                    return (match && match[2].length === 11) ? match[2] : null;
+                }
+            }
+        });
+    </script>
+
+    <!-- VIDEO MODAL POPUP -->
+    <div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark border-0 rounded-3 overflow-hidden">
+                <div class="modal-header border-0 p-2 d-flex justify-content-between align-items-center bg-black" style="background: #000;">
+                    <h6 class="modal-title text-white font-monospace small ms-2" id="videoModalLabel">ĐANG PHÁT VIDEO</h6>
+                    <button type="button" class="btn-close btn-close-white shadow-none me-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 bg-black" style="background: #000;">
+                    <div class="ratio ratio-16x9" id="videoContainer">
+                        <!-- iframe or video element will be injected here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

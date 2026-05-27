@@ -1,0 +1,219 @@
+@model List<New_folder.Models.Banner>
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Banner Quảng cáo";
+}
+
+<div class="row g-4">
+    <!-- LEFT SIDE: NEW BANNER FORM (40%) -->
+    <div class="col-lg-4 col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-square-plus me-2 text-primary"></i> Thêm Banner Quảng cáo</h4>
+            <form asp-action="CreateBanner" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Tiêu đề quảng cáo <span class="text-danger">*</span></label>
+                    <input type="text" name="title" class="form-control" placeholder="Ví dụ: Banner Trái - Tiết kiệm điện" required />
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Tệp ảnh quảng cáo <span class="text-danger">*</span></label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*" required />
+                    <span class="small text-muted font-monospace mt-1 d-block"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Để gán đúng làm banner 2 bên lề, hãy đặt tên có từ 'Trái' hoặc 'Phải'.</span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Vị trí hiển thị <span class="text-danger">*</span></label>
+                    <select name="position" class="form-select">
+                        <option value="InBetween">Banner Ngang xen kẽ các chuyên mục (Kích thước: 970x250 hoặc 1140x150)</option>
+                        <option value="Sidebar">Banner đứng 2 bên lề lướt dọc (Đặt tên 'Trái' hoặc 'Phải' để tự nhận diện lề)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">Đường dẫn liên kết (Redirect URL)</label>
+                    <input type="url" name="redirectUrl" class="form-control" placeholder="Ví dụ: https://company.com/promotion" />
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <label class="form-label fw-bold text-secondary">Ngày bắt đầu</label>
+                        <input type="date" name="startDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-bold text-secondary">Ngày hết hạn</label>
+                        <input type="date" name="endDate" class="form-control" value="@DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd")" required />
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary fw-bold text-uppercase rounded-3"><i class="fa-solid fa-upload me-2"></i> Xuất bản Banner</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: BANNERS LISTING (60%) -->
+    <div class="col-lg-8 col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-rectangle-ad me-2 text-warning"></i> Danh sách Banner đang chạy</h4>
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr class="table-light">
+                                <th>Hình ảnh</th>
+                                <th>Tên chiến dịch / Vị trí</th>
+                                <th>Thời hạn</th>
+                                <th class="text-center">Kích hoạt</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var banner in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div style="width: 100px; height: 50px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border-color);">
+                                            <img src="@banner.ImageUrl" class="w-100 h-100" style="object-fit: cover;" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h6 class="m-0 fw-bold">@banner.Title</h6>
+                                        <span class="badge bg-secondary font-monospace text-uppercase" style="font-size: 0.65rem;">Vị trí: @banner.Position</span>
+                                    </td>
+                                    <td class="small">
+                                        <div>Bắt đầu: @banner.StartDate.ToString("dd/MM/yyyy")</div>
+                                        <div class="text-muted">Hết hạn: @banner.EndDate.ToString("dd/MM/yyyy")</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" checked="@banner.IsActive" onchange="toggleBanner(@banner.Id)" />
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex gap-1 justify-content-center">
+                                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 edit-banner-btn"
+                                                    data-id="@banner.Id"
+                                                    data-title="@banner.Title"
+                                                    data-redirect="@banner.RedirectUrl"
+                                                    data-position="@banner.Position"
+                                                    data-start="@banner.StartDate.ToString("yyyy-MM-dd")"
+                                                    data-end="@banner.EndDate.ToString("yyyy-MM-dd")"
+                                                    data-active="@(banner.IsActive ? "true" : "false")">
+                                                <i class="fa-solid fa-pen"></i> Sửa
+                                            </button>
+                                            <a asp-action="DeleteBanner" asp-route-id="@banner.Id" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bạn có chắc chắn muốn xóa banner quảng cáo này?')"><i class="fa-solid fa-trash-can"></i> Xóa</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-images fs-2 text-muted mb-3"></i>
+                    <p class="text-muted m-0">Chưa có banner quảng cáo nào trên hệ thống.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- EDIT BANNER MODAL -->
+<div class="modal fade" id="editBannerModal" tabindex="-1" aria-labelledby="editBannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold font-monospace" id="editBannerModalLabel"><i class="fa-solid fa-pen-to-square me-2"></i> CẬP NHẬT BANNER</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditBanner" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" id="editBannerId" />
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Tiêu đề quảng cáo <span class="text-danger">*</span></label>
+                        <input type="text" name="title" id="editBannerTitle" class="form-control" required />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Thay đổi tệp ảnh quảng cáo mới (Để trống nếu giữ nguyên)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Vị trí hiển thị <span class="text-danger">*</span></label>
+                        <select name="position" id="editBannerPosition" class="form-select">
+                            <option value="InBetween">Banner Ngang xen kẽ</option>
+                            <option value="Sidebar">Banner đứng 2 bên lề</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Đường dẫn liên kết (Redirect URL)</label>
+                        <input type="url" name="redirectUrl" id="editBannerRedirect" class="form-control" />
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-secondary">Ngày bắt đầu</label>
+                            <input type="date" name="startDate" id="editBannerStart" class="form-control" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-secondary">Ngày hết hạn</label>
+                            <input type="date" name="endDate" id="editBannerEnd" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mt-3">
+                        <input class="form-check-input" type="checkbox" name="isActive" role="switch" id="editBannerActive" value="true" />
+                        <label class="form-check-label fw-bold text-secondary" for="editBannerActive">Trạng thái kích hoạt chạy quảng cáo</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 font-monospace btn-sm" data-bs-dismiss="modal">ĐÓNG</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 font-monospace btn-sm">CẬP NHẬT</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.edit-banner-btn').click(function() {
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                var redirect = $(this).data('redirect');
+                var position = $(this).data('position');
+                var start = $(this).data('start');
+                var end = $(this).data('end');
+                var active = $(this).data('active');
+
+                $('#editBannerId').val(id);
+                $('#editBannerTitle').val(title);
+                $('#editBannerRedirect').val(redirect);
+                $('#editBannerPosition').val(position);
+                $('#editBannerStart').val(start);
+                $('#editBannerEnd').val(end);
+
+                if (active === true || active === 'true') {
+                    $('#editBannerActive').prop('checked', true);
+                } else {
+                    $('#editBannerActive').prop('checked', false);
+                }
+
+                $('#editBannerModal').modal('show');
+            });
+        });
+
+        function toggleBanner(id) {
+            $.post("/Admin/ToggleBanner/" + id);
+        }
+    </script>
+}

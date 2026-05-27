@@ -1,0 +1,257 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var featuredPosts = ViewBag.FeaturedPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
+    var latestNews = ViewBag.LatestNews as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
+    var categories = ViewBag.Categories as List<New_folder.Models.Category> ?? new List<New_folder.Models.Category>();
+    var categoryPosts = ViewBag.CategoryPosts as Dictionary<int, List<New_folder.Models.Post>> ?? new Dictionary<int, List<New_folder.Models.Post>>();
+    var banners = ViewBag.Banners as List<New_folder.Models.Banner> ?? new List<New_folder.Models.Banner>();
+    var videos = ViewBag.Videos as List<New_folder.Models.Video> ?? new List<New_folder.Models.Video>();
+
+    var inBetweenBanners = banners.Where(b => b.Position == "InBetween").ToList();
+    var sidebarBanners = banners.Where(b => b.Position == "Sidebar" && !b.Title.Contains("Trái") && !b.Title.Contains("Phải")).ToList();
+}
+
+<!-- FULL 2-COLUMN LAYOUT: CONTENT (col-lg-8) + SIDEBAR (col-lg-4) -->
+<div class="row g-4">
+
+    <!-- ============ LEFT: MAIN CONTENT AREA ============ -->
+    <div class="col-lg-8">
+
+        <!-- TOP SPOTLIGHT: MAIN FEATURED POST -->
+        @if (featuredPosts.Any())
+        {
+            var mainPost = featuredPosts.First();
+            <div class="border p-3 rounded-2 bg-white shadow-sm mb-4">
+                <div class="overflow-hidden rounded-2 mb-3" style="height: 380px;">
+                    <img src="@(string.IsNullOrEmpty(mainPost.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : mainPost.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" alt="@mainPost.Title" />
+                </div>
+                <span class="badge bg-danger text-uppercase font-monospace mb-2">@mainPost.Category?.Name</span>
+                <h3 class="brand-font fs-3 mb-2">
+                    <a asp-action="PostDetail" asp-route-slug="@mainPost.Slug" class="text-decoration-none text-dark hover-warning" style="line-height: 1.35;">@mainPost.Title</a>
+                </h3>
+                <p class="text-muted small mb-0 lh-lg" style="text-align: justify;">@mainPost.Summary</p>
+                <div class="text-muted small mt-2"><i class="fa-regular fa-clock me-1"></i> @mainPost.CreatedAt.ToString("dd/MM/yyyy") | Tác giả: <strong>@mainPost.Author?.FullName</strong></div>
+            </div>
+        }
+
+        <!-- CATEGORY GRIDS -->
+        @for (int index = 0; index < categories.Count; index++)
+        {
+            var cat = categories[index];
+            var posts = categoryPosts.ContainsKey(cat.Id) ? categoryPosts[cat.Id] : new List<New_folder.Models.Post>();
+
+            <section class="mb-4 bg-white p-3 border rounded-2 shadow-sm">
+                <div class="traditional-category-bar">
+                    <span>@cat.Name</span>
+                    <a asp-action="Category" asp-route-slug="@cat.Slug" class="view-more">Xem tất cả &gt;&gt;</a>
+                </div>
+
+                @if (posts.Any())
+                {
+                    var featuredLarge = posts.FirstOrDefault()!;
+                    var featuredSmall = posts.Skip(1).Take(2).ToList();
+                    var bottomPosts = posts.Skip(3).Take(3).ToList();
+
+                    <!-- Row 1: 1 Large + 2 Small -->
+                    <div class="row g-3 mb-0">
+                        <!-- Left: Large Post -->
+                        <div class="col-md-8">
+                            <div class="large-post-card">
+                                <div class="large-post-img-wrapper rounded-2 overflow-hidden mb-3">
+                                    <a asp-action="PostDetail" asp-route-slug="@featuredLarge.Slug">
+                                        <img src="@(string.IsNullOrEmpty(featuredLarge.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600" : featuredLarge.ImageUrl)" alt="@featuredLarge.Title" />
+                                    </a>
+                                </div>
+                                <h4 class="large-post-title brand-font mb-2">
+                                    <a asp-action="PostDetail" asp-route-slug="@featuredLarge.Slug">@featuredLarge.Title</a>
+                                </h4>
+                                <p class="text-muted small mb-0 lh-lg" style="text-align: justify; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">@featuredLarge.Summary</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: 2 Small stacked -->
+                        <div class="col-md-4 d-flex flex-column gap-3">
+                            @foreach (var p in featuredSmall)
+                            {
+                                <div class="small-post-vertical">
+                                    <div class="small-post-img-wrapper rounded-2 overflow-hidden mb-2" style="height: 130px;">
+                                        <a asp-action="PostDetail" asp-route-slug="@p.Slug">
+                                            <img src="@(string.IsNullOrEmpty(p.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : p.ImageUrl)" alt="@p.Title" style="width:100%;height:100%;object-fit:cover;" />
+                                        </a>
+                                    </div>
+                                    <h5 class="small-post-title m-0 brand-font" style="font-size: 0.9rem;">
+                                        <a asp-action="PostDetail" asp-route-slug="@p.Slug">@p.Title</a>
+                                    </h5>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Bottom 3 posts with border separators -->
+                    @if (bottomPosts.Any())
+                    {
+                        <div class="category-bottom-grid">
+                            @foreach (var bp in bottomPosts)
+                            {
+                                <div class="category-bottom-item">
+                                    <h6>
+                                        <a asp-action="PostDetail" asp-route-slug="@bp.Slug">@bp.Title</a>
+                                    </h6>
+                                    <p>@bp.Summary</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted small my-3 text-center">Chưa có bài viết.</p>
+                }
+            </section>
+
+            <!-- Inject InBetween Banners every 2 categories with auto rotation -->
+            if (index % 2 == 1 && inBetweenBanners.Any())
+            {
+                <div class="banner-middle my-3 text-center">
+                    <div class="banner-middle-rotator" data-delay="5000">
+                        @for (int i = 0; i < inBetweenBanners.Count; i++)
+                        {
+                            var banner = inBetweenBanners[i];
+                            <a href="@banner.RedirectUrl" target="_blank" class="banner-middle-slide @(i == 0 ? "active" : "")" title="@banner.Title">
+                                <img src="@banner.ImageUrl" alt="@banner.Title" class="rounded-2" />
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+            else if (index % 2 == 1)
+            {
+                <div class="banner-middle my-3 text-center">
+                    <div class="rounded-2 d-flex justify-content-center align-items-center text-secondary fw-bold shadow-sm" style="width: 100%; height: 100px; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); border: 1px solid #ddd;">
+                        <span>CHƯƠNG TRÌNH KHẢO SÁT VÀ CÔNG BỐ THƯƠNG HIỆU VIỆT NAM CHẤT LƯỢNG CAO</span>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+
+    <!-- ============ RIGHT: SIDEBAR ============ -->
+    <div class="col-lg-4">
+        <div class="sidebar-sticky">
+
+            <!-- WIDGET: Tiêu điểm sự kiện -->
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-title">
+                    <i class="fa-solid fa-star text-warning"></i> Tiêu điểm sự kiện
+                </div>
+                <ul class="sidebar-text-list">
+                    @if (latestNews.Any())
+                    {
+                        foreach (var news in latestNews.Where(n => n.IsFeatured).Take(5))
+                        {
+                            <li>
+                                <a asp-action="PostDetail" asp-route-slug="@news.Slug">@news.Title</a>
+                                <span class="sidebar-news-date"><i class="fa-regular fa-clock me-1"></i> @news.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </li>
+                        }
+                        @if (!latestNews.Any(n => n.IsFeatured))
+                        {
+                            foreach (var news in latestNews.Take(5))
+                            {
+                                <li>
+                                    <a asp-action="PostDetail" asp-route-slug="@news.Slug">@news.Title</a>
+                                    <span class="sidebar-news-date"><i class="fa-regular fa-clock me-1"></i> @news.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </li>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <li class="text-muted small py-4 text-center">Chưa có bài viết tiêu điểm.</li>
+                    }
+                </ul>
+            </div>
+
+            <!-- WIDGET: Banner Quảng cáo -->
+            @if (sidebarBanners.Any())
+            {
+                <div class="sidebar-banner-rotator" data-delay="4500">
+                    @for (int i = 0; i < sidebarBanners.Count; i++)
+                    {
+                        var banner = sidebarBanners[i];
+                        <a href="@banner.RedirectUrl" target="_blank" class="sidebar-banner-slide @(i == 0 ? "active" : "")" title="@banner.Title">
+                            <img src="@banner.ImageUrl" alt="@banner.Title" />
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="sidebar-banner">
+                    <div class="sidebar-banner-placeholder">
+                        <i class="fa-solid fa-rectangle-ad fs-2 mb-2 text-warning"></i>
+                        <span>QUẢNG CÁO DOANH NGHIỆP</span>
+                        <span class="small mt-2" style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">LIÊN HỆ PR THƯƠNG HIỆU</span>
+                    </div>
+                </div>
+            }
+
+            <!-- WIDGET: Tin mới nhất -->
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-title">
+                    <i class="fa-solid fa-newspaper"></i> Tin mới nhất
+                </div>
+                <ul class="sidebar-news-list">
+                    @foreach (var news in latestNews.Take(6))
+                    {
+                        <li class="sidebar-news-item">
+                            <div class="sidebar-news-thumb">
+                                <a asp-action="PostDetail" asp-route-slug="@news.Slug">
+                                    <img src="@(string.IsNullOrEmpty(news.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=120" : news.ImageUrl)" alt="@news.Title" />
+                                </a>
+                            </div>
+                            <div class="sidebar-news-body">
+                                <a asp-action="PostDetail" asp-route-slug="@news.Slug">@news.Title</a>
+                                <span class="sidebar-news-date"><i class="fa-regular fa-clock me-1"></i> @news.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- WIDGET: Video nổi bật -->
+            @if (videos.Any())
+            {
+                <div class="sidebar-widget">
+                    <div class="sidebar-widget-title">
+                        <i class="fa-solid fa-video"></i> Video nổi bật
+                    </div>
+                    @foreach (var video in videos.Take(2))
+                    {
+                        <div class="video-widget-item">
+                            <a href="#" class="play-video-btn" data-video-url="@video.VideoUrl" data-video-title="@video.Title" title="@video.Title">
+                                <div class="video-widget-thumb">
+                                    <img src="@(string.IsNullOrEmpty(video.ThumbnailUrl) ? "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" : video.ThumbnailUrl)" alt="@video.Title" />
+                                    <div class="video-play-btn">
+                                        <i class="fa-solid fa-play"></i>
+                                    </div>
+                                </div>
+                            </a>
+                            <div class="video-widget-title" style="background: none; color: inherit; padding: 0; font-size: inherit; text-transform: none; letter-spacing: normal;">
+                                <a href="#" class="play-video-btn font-monospace fw-bold small text-decoration-none text-dark hover-primary d-block mt-1" data-video-url="@video.VideoUrl" data-video-title="@video.Title">@video.Title</a>
+                            </div>
+                        </div>
+                    }
+                    <div class="text-center py-2 bg-light border-top">
+                        <a asp-action="Videos" class="text-decoration-none small fw-bold text-primary">
+                            Xem tất cả video <i class="fa-solid fa-circle-play ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>

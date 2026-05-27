@@ -1,0 +1,315 @@
+@model List<New_folder.Models.Post>
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Bài viết PR";
+    var categories = ViewBag.Categories as List<New_folder.Models.Category> ?? new List<New_folder.Models.Category>();
+}
+
+<div class="row g-4 mb-4">
+    <!-- COLLAPSIBLE FORM TO POST AN ARTICLE -->
+    <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3 border-0">
+                <h4 class="m-0 brand-font fs-5 text-white text-uppercase"><i class="fa-solid fa-pen-to-square me-2 text-warning"></i> Đăng bài viết PR mới</h4>
+                <button class="btn btn-warning btn-sm text-dark fw-bold rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#createPostForm" aria-expanded="false" aria-controls="createPostForm">
+                    <i class="fa-solid fa-plus me-1"></i> Soạn bài viết
+                </button>
+            </div>
+            <div class="collapse" id="createPostForm">
+                <div class="card-body p-4 bg-white border-top">
+                    <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8 col-12">
+                                <label class="form-label fw-bold text-secondary">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                                <input type="text" name="title" class="form-control form-control-lg" placeholder="Nhập tiêu đề tin PR..." required />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label class="form-label fw-bold text-secondary">Chuyên mục <span class="text-danger">*</span></label>
+                                <select name="categoryId" class="form-select form-select-lg" required>
+                                    <option value="">-- Chọn chuyên mục --</option>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.Id">@cat.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6 col-12">
+                                <label class="form-label fw-bold text-secondary">Ảnh đại diện bài viết (Cover Image)</label>
+                                <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                            </div>
+                            <div class="col-md-6 col-12 d-flex align-items-end">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="isFeatured" name="isFeatured" value="true">
+                                    <label class="form-check-label fw-bold text-danger" for="isFeatured">Ghim bài viết lên tiêu điểm Slide trang chủ</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Tóm tắt ngắn (Sapo)</label>
+                            <textarea name="summary" class="form-control" rows="2" placeholder="Nhập tóm tắt mô tả ngắn gọn bài viết PR..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">Nội dung chi tiết bài viết (Hỗ trợ định dạng Rich Text) <span class="text-danger">*</span></label>
+                            <textarea name="content" id="createPostContent" class="form-control" rows="10" placeholder="Soạn nội dung chi tiết bài viết..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-toggle="collapse" data-bs-target="#createPostForm">Hủy bỏ</button>
+                            <button type="submit" class="btn btn-primary rounded-3 px-4"><i class="fa-solid fa-paper-plane me-2"></i> Xuất bản bài viết</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- POSTS LISTING TABLE -->
+<div class="row">
+    <div class="col-12">
+        <div class="admin-card">
+            <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-newspaper me-2 text-warning"></i> Danh sách tất cả bài viết PR</h4>
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr class="table-light">
+                                <th>Ảnh bìa</th>
+                                <th>Tiêu đề</th>
+                                <th>Chuyên mục</th>
+                                <th>Tác giả / Doanh nghiệp</th>
+                                <th>Ngày đăng</th>
+                                <th class="text-center">Được duyệt</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var post in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div style="width: 80px; height: 50px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border-color);">
+                                            <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=200" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h6 class="m-0 fw-bold">@post.Title</h6>
+                                        @if (post.IsFeatured)
+                                        {
+                                            <span class="badge bg-danger font-monospace text-uppercase" style="font-size: 0.6rem;"><i class="fa-solid fa-thumbtack me-1"></i> Tiêu điểm</span>
+                                        }
+                                    </td>
+                                    <td><span class="badge bg-light text-secondary">@post.Category?.Name</span></td>
+                                    <td class="small">
+                                        <div>@post.Author?.FullName</div>
+                                        <div class="text-muted">@post.Author?.CompanyName</div>
+                                    </td>
+                                    <td class="small text-muted font-monospace">@post.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center">
+                                        <div class="form-check form-switch d-inline-block">
+                                            <input class="form-check-input" type="checkbox" role="switch" checked="@post.IsApproved" onchange="togglePostApproval(@post.Id)" />
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-outline-primary px-3 rounded-pill btn-edit-post me-1"
+                                                data-id="@post.Id"
+                                                data-title="@post.Title"
+                                                data-categoryid="@post.CategoryId"
+                                                data-featured="@post.IsFeatured.ToString().ToLower()"
+                                                data-isapproved="@post.IsApproved.ToString().ToLower()">
+                                            <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
+                                        </button>
+                                        <a asp-action="DeletePost" asp-route-id="@post.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?')"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
+                                        
+                                        <textarea class="d-none" id="summary-@post.Id">@post.Summary</textarea>
+                                        <textarea class="d-none" id="content-@post.Id">@post.Content</textarea>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-newspaper fs-2 text-muted mb-3"></i>
+                    <p class="text-muted m-0">Chưa có bài viết PR nào được đăng tải trên hệ thống.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- EDIT POST MODAL -->
+<div class="modal fade" id="editPostModal" tabindex="-1" aria-labelledby="editPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold text-white text-uppercase" id="editPostModalLabel"><i class="fa-solid fa-pen-to-square me-2 text-warning"></i> Cập nhật Bài viết PR</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="EditPost" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" id="editPostId" />
+                <div class="modal-body p-4 bg-light">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8 col-12">
+                            <label class="form-label fw-bold text-secondary">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                            <input type="text" name="title" id="editPostTitle" class="form-control form-control-lg shadow-sm" required />
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold text-secondary">Chuyên mục <span class="text-danger">*</span></label>
+                            <select name="categoryId" id="editPostCategoryId" class="form-select form-select-lg shadow-sm" required>
+                                <option value="">-- Chọn chuyên mục --</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.Id">@cat.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 col-12">
+                            <label class="form-label fw-bold text-secondary">Thay đổi ảnh đại diện bài viết (Để trống nếu giữ nguyên)</label>
+                            <input type="file" name="imageFile" class="form-control shadow-sm" accept="image/*" />
+                        </div>
+                        <div class="col-md-6 col-12 d-flex align-items-center">
+                            <div class="d-flex gap-4 mt-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="editPostFeatured" name="isFeatured" value="true">
+                                    <label class="form-check-label fw-bold text-danger" for="editPostFeatured">Ghim bài viết lên tiêu điểm Slide</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="editPostApproved" name="isApproved" value="true">
+                                    <label class="form-check-label fw-bold text-success" for="editPostApproved">Phê duyệt hiển thị</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Tóm tắt ngắn (Sapo)</label>
+                        <textarea name="summary" id="editPostSummary" class="form-control shadow-sm" rows="3" placeholder="Nhập tóm tắt mô tả ngắn gọn..."></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Nội dung chi tiết bài viết (Hỗ trợ định dạng HTML) <span class="text-danger">*</span></label>
+                        <textarea name="content" id="editPostContent" class="form-control shadow-sm" rows="12" placeholder="Soạn nội dung chi tiết..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4"><i class="fa-solid fa-save me-2"></i> Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <script>
+        function togglePostApproval(id) {
+            $.post("/Admin/ApprovePost/" + id);
+        }
+
+        let createEditor;
+        let editEditor;
+
+        // Initialize CKEditor 5 for Create Form
+        ClassicEditor
+            .create(document.querySelector('#createPostContent'), {
+                placeholder: 'Soạn nội dung chi tiết bài viết tại đây...'
+            })
+            .then(editor => {
+                createEditor = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        // Initialize CKEditor 5 for Edit Modal
+        ClassicEditor
+            .create(document.querySelector('#editPostContent'), {
+                placeholder: 'Cập nhật nội dung chi tiết bài viết tại đây...'
+            })
+            .then(editor => {
+                editEditor = editor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        $(document).ready(function() {
+            $('.btn-edit-post').click(function() {
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                var categoryid = $(this).data('categoryid');
+                var featured = $(this).data('featured');
+                var approved = $(this).data('isapproved');
+
+                var summary = $('#summary-' + id).val();
+                var content = $('#content-' + id).val();
+
+                $('#editPostId').val(id);
+                $('#editPostTitle').val(title);
+                $('#editPostCategoryId').val(categoryid);
+                
+                $('#editPostFeatured').prop('checked', featured === true || featured === 'true');
+                $('#editPostApproved').prop('checked', approved === true || approved === 'true');
+
+                $('#editPostSummary').val(summary);
+                
+                // Set data to CKEditor
+                if (editEditor) {
+                    editEditor.setData(content);
+                } else {
+                    $('#editPostContent').val(content);
+                }
+
+                $('#editPostModal').modal('show');
+            });
+
+            // Ensure CKEditor data is fully synced to underlying textarea before form submit & validate empty contents
+            $('form').on('submit', function(e) {
+                // Validate Create Form
+                if ($(this).find('#createPostContent').length > 0) {
+                    if (createEditor) {
+                        var data = createEditor.getData().trim();
+                        $('#createPostContent').val(data);
+                        
+                        var plainText = $('<div>').html(data).text().trim();
+                        if (plainText === '' && data.indexOf('<img') === -1) {
+                            alert('Vui lòng soạn nội dung chi tiết bài viết!');
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                }
+                
+                // Validate Edit Form
+                if ($(this).find('#editPostContent').length > 0) {
+                    if (editEditor) {
+                        var data = editEditor.getData().trim();
+                        $('#editPostContent').val(data);
+                        
+                        var plainText = $('<div>').html(data).text().trim();
+                        if (plainText === '' && data.indexOf('<img') === -1) {
+                            alert('Vui lòng soạn nội dung chi tiết bài viết!');
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

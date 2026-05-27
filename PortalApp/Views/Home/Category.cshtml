@@ -1,0 +1,218 @@
+@model List<New_folder.Models.Post>
+
+@{
+    var category = ViewBag.Category as New_folder.Models.Category;
+    ViewData["Title"] = category?.Name;
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var sidebarPosts = ViewBag.SidebarPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
+    var sidebarBanners = ViewBag.SidebarBanners as List<New_folder.Models.Banner> ?? new List<New_folder.Models.Banner>();
+}
+
+<!-- BREADCRUMB -->
+<div class="row mb-3">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-premium">
+                <li class="breadcrumb-item"><a asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@category?.Name</li>
+            </ol>
+        </nav>
+        <div class="traditional-category-bar">
+            <span>Chuyên mục: @category?.Name</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: ARTICLES LIST (70%) -->
+    <div class="col-lg-8">
+        @if (Model.Any())
+        {
+            <!-- Featured Hero: First Post -->
+            var heroPost = Model.First();
+            <div class="featured-hero-card">
+                <div class="featured-hero-img">
+                    <a asp-action="PostDetail" asp-route-slug="@heroPost.Slug">
+                        <img src="@(string.IsNullOrEmpty(heroPost.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : heroPost.ImageUrl)" alt="@heroPost.Title" />
+                    </a>
+                </div>
+                <h2 class="brand-font">
+                    <a asp-action="PostDetail" asp-route-slug="@heroPost.Slug">@heroPost.Title</a>
+                </h2>
+                <p class="featured-summary">@heroPost.Summary</p>
+                <div class="featured-hero-meta">
+                    <i class="fa-regular fa-clock me-1"></i> @heroPost.CreatedAt.ToString("dd/MM/yyyy")
+                    @if (heroPost.Author != null)
+                    {
+                        <span class="ms-3"><i class="fa-regular fa-user me-1"></i> @heroPost.Author.FullName</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Remaining Posts: Horizontal Cards -->
+            @foreach (var post in Model.Skip(1))
+            {
+                <div class="horizontal-news-card">
+                    <div class="horizontal-news-img">
+                        <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                            <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" alt="@post.Title" />
+                        </a>
+                    </div>
+                    <div class="horizontal-news-body">
+                        <h5>
+                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">@post.Title</a>
+                        </h5>
+                        <p>@post.Summary</p>
+                        <div class="horizontal-news-meta">
+                            <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                            @if (post.Author != null)
+                            {
+                                <span class="ms-2">| <i class="fa-regular fa-user me-1"></i> @post.Author.FullName</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- PAGINATION -->
+            @if (totalPages > 1)
+            {
+                <nav class="pagination-custom" aria-label="Phân trang">
+                    <!-- Previous -->
+                    @if (currentPage > 1)
+                    {
+                        <a asp-action="Category" asp-route-slug="@category?.Slug" asp-route-page="@(currentPage - 1)" title="Trang trước">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-disabled"><i class="fa-solid fa-chevron-left"></i></span>
+                    }
+
+                    <!-- Page Numbers -->
+                    @{
+                        int startPage = Math.Max(1, currentPage - 2);
+                        int endPage = Math.Min(totalPages, currentPage + 2);
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <a asp-action="Category" asp-route-slug="@category?.Slug" asp-route-page="1">1</a>
+                        if (startPage > 2)
+                        {
+                            <span class="page-disabled">...</span>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        if (i == currentPage)
+                        {
+                            <span class="page-active">@i</span>
+                        }
+                        else
+                        {
+                            <a asp-action="Category" asp-route-slug="@category?.Slug" asp-route-page="@i">@i</a>
+                        }
+                    }
+
+                    @if (endPage < totalPages)
+                    {
+                        if (endPage < totalPages - 1)
+                        {
+                            <span class="page-disabled">...</span>
+                        }
+                        <a asp-action="Category" asp-route-slug="@category?.Slug" asp-route-page="@totalPages">@totalPages</a>
+                    }
+
+                    <!-- Next -->
+                    @if (currentPage < totalPages)
+                    {
+                        <a asp-action="Category" asp-route-slug="@category?.Slug" asp-route-page="@(currentPage + 1)" title="Trang sau">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="page-disabled"><i class="fa-solid fa-chevron-right"></i></span>
+                    }
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5 bg-white border rounded-3">
+                <i class="fa-solid fa-folder-open fs-1 text-muted mb-3"></i>
+                <h5 class="text-dark">Chưa có bài viết nào thuộc chuyên mục này</h5>
+                <p class="text-muted small">Hãy quay lại sau hoặc liên hệ ban biên tập để đăng bài viết PR.</p>
+                <a asp-action="Index" class="btn btn-primary btn-sm rounded-pill font-monospace fw-bold mt-2">Về trang chủ</a>
+            </div>
+        }
+    </div>
+
+    <!-- RIGHT: SIDEBAR (30%) -->
+    <div class="col-lg-4">
+        <div class="sidebar-sticky">
+
+            <!-- Widget: Bài viết trong chuyên mục -->
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-title">
+                    <i class="fa-solid fa-list"></i> Bài viết mới nhất
+                </div>
+                <ul class="sidebar-news-list">
+                    @foreach (var sp in sidebarPosts.Take(5))
+                    {
+                        <li class="sidebar-news-item">
+                            <div class="sidebar-news-thumb">
+                                <a asp-action="PostDetail" asp-route-slug="@sp.Slug">
+                                    <img src="@(string.IsNullOrEmpty(sp.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=120" : sp.ImageUrl)" alt="@sp.Title" />
+                                </a>
+                            </div>
+                            <div class="sidebar-news-body">
+                                <a asp-action="PostDetail" asp-route-slug="@sp.Slug">@sp.Title</a>
+                                <span class="sidebar-news-date"><i class="fa-regular fa-clock me-1"></i> @sp.CreatedAt.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Widget: Banner Quảng cáo -->
+            @if (sidebarBanners.Any())
+            {
+                <div class="sidebar-banner-rotator" data-delay="4500">
+                    @for (int i = 0; i < sidebarBanners.Count; i++)
+                    {
+                        var banner = sidebarBanners[i];
+                        <a href="@banner.RedirectUrl" target="_blank" class="sidebar-banner-slide @(i == 0 ? "active" : "")" title="@banner.Title">
+                            <img src="@banner.ImageUrl" alt="@banner.Title" />
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="sidebar-banner">
+                    <div class="sidebar-banner-placeholder">
+                        <i class="fa-solid fa-rectangle-ad fs-2 mb-2 text-warning"></i>
+                        <span>QUẢNG CÁO DOANH NGHIỆP</span>
+                        <span class="small mt-2" style="font-size: 0.75rem; font-weight: normal; opacity: 0.8;">LIÊN HỆ PR THƯƠNG HIỆU</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Widget: Giới thiệu chuyên mục -->
+            <div class="sidebar-widget">
+                <div class="sidebar-widget-title">
+                    <i class="fa-solid fa-circle-info"></i> Giới thiệu chuyên mục
+                </div>
+                <div class="p-3">
+                    <p class="small text-muted mb-0">Chuyên mục tin tức chính thức cung cấp các thông tin hữu ích về @category?.Name. Nội dung được Ban biên tập kiểm duyệt chặt chẽ.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
