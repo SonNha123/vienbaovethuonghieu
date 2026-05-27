@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using New_folder.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
 
 // Force the app to run on port 5000
 builder.WebHost.UseUrls("http://localhost:5000");

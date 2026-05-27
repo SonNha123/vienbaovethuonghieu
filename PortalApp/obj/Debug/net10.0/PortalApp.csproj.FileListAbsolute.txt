@@ -279,3 +279,4 @@ D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\refint\PortalApp.dll
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\PortalApp.pdb
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\PortalApp.genruntimeconfig.cache
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\ref\PortalApp.dll
+D:\DEV\vienbaovethuonghieu\PortalApp\bin\Debug\net10.0\appsettings.Secrets.json

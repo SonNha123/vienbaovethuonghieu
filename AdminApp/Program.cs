@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using New_folder.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
 
 // Force Admin CMS App to run on port 5001
 builder.WebHost.UseUrls("http://localhost:5001");

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PortalApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cdb461baf14129c674f14731ee8984d13fa5e850")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b8f9cc698e8ea5f67086309bb67e09247e957c6a")]
 [assembly: System.Reflection.AssemblyProductAttribute("PortalApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PortalApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -447,3 +447,4 @@ D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\refint\AdminApp.dll
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\AdminApp.pdb
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\AdminApp.genruntimeconfig.cache
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\ref\AdminApp.dll
+D:\DEV\vienbaovethuonghieu\AdminApp\bin\Debug\net10.0\appsettings.Secrets.json

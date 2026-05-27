@@ -1,0 +1,20 @@
+# Ignore secrets
+appsettings.Secrets.json
+**/appsettings.Secrets.json
+
+# Ignore build artifacts
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+
+# Ignore IDE files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore system files
+.DS_Store
+Thumbs.db
