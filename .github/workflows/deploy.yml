@@ -13,4 +13,4 @@ jobs:
       - name: Run Deploy Script
         shell: powershell
         run: |
-          powershell -ExecutionPolicy Bypass -File "C:\deploy\deploy.ps1"
+          powershell -ExecutionPolicy Bypass -File "C:\www\vienbaovethuonghieu\deploy\deploy.ps1"
