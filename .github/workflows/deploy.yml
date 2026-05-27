@@ -1,0 +1,16 @@
+name: Deploy VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Run Deploy Script
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File "C:\deploy\deploy.ps1"
