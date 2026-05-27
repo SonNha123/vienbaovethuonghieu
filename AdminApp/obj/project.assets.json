@@ -3055,11 +3055,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\DEV\\New folder\\AdminApp\\AdminApp.csproj",
+      "projectUniqueName": "D:\\DEV\\vienbaovethuonghieu\\AdminApp\\AdminApp.csproj",
       "projectName": "AdminApp",
-      "projectPath": "d:\\DEV\\New folder\\AdminApp\\AdminApp.csproj",
+      "projectPath": "D:\\DEV\\vienbaovethuonghieu\\AdminApp\\AdminApp.csproj",
       "packagesPath": "C:\\Users\\NhaDev\\.nuget\\packages\\",
-      "outputPath": "d:\\DEV\\New folder\\AdminApp\\obj\\",
+      "outputPath": "D:\\DEV\\vienbaovethuonghieu\\AdminApp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

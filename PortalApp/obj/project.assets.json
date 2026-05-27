@@ -1110,11 +1110,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\DEV\\New folder\\PortalApp\\PortalApp.csproj",
+      "projectUniqueName": "D:\\DEV\\vienbaovethuonghieu\\PortalApp\\PortalApp.csproj",
       "projectName": "PortalApp",
-      "projectPath": "D:\\DEV\\New folder\\PortalApp\\PortalApp.csproj",
+      "projectPath": "D:\\DEV\\vienbaovethuonghieu\\PortalApp\\PortalApp.csproj",
       "packagesPath": "C:\\Users\\NhaDev\\.nuget\\packages\\",
-      "outputPath": "D:\\DEV\\New folder\\PortalApp\\obj\\",
+      "outputPath": "D:\\DEV\\vienbaovethuonghieu\\PortalApp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
