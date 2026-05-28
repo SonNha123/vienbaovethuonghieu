@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using New_folder.Models;
 
 namespace New_folder.Controllers;
@@ -10,11 +11,13 @@ public class AdminController : Controller
 {
     private readonly AppDbContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public AdminController(AppDbContext context, IWebHostEnvironment env)
+    public AdminController(AppDbContext context, IWebHostEnvironment env, IConfiguration config)
     {
         _context = context;
         _env = env;
+        _config = config;
     }
 
     // ==========================================
@@ -691,7 +694,8 @@ public class AdminController : Controller
 
         try
         {
-            string portalUploads = Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads", folder);
+            string portalUploadsRoot = _config["UploadPath"] ?? Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads");
+            string portalUploads = Path.Combine(portalUploadsRoot, folder);
             Directory.CreateDirectory(portalUploads);
             string portalFilePath = Path.Combine(portalUploads, uniqueFileName);
             System.IO.File.Copy(adminFilePath, portalFilePath, true);

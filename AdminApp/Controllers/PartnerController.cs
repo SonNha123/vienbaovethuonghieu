@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using New_folder.Models;
 
 namespace New_folder.Controllers;
@@ -10,11 +11,13 @@ public class PartnerController : Controller
 {
     private readonly AppDbContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public PartnerController(AppDbContext context, IWebHostEnvironment env)
+    public PartnerController(AppDbContext context, IWebHostEnvironment env, IConfiguration config)
     {
         _context = context;
         _env = env;
+        _config = config;
     }
 
     public async Task<IActionResult> Index()
@@ -68,7 +71,8 @@ public class PartnerController : Controller
         // Copy file to PortalApp wwwroot so it loads immediately there
         try
         {
-            string portalUploads = Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads", "logos");
+            string portalUploadsRoot = _config["UploadPath"] ?? Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads");
+            string portalUploads = Path.Combine(portalUploadsRoot, "logos");
             Directory.CreateDirectory(portalUploads);
             System.IO.File.Copy(filePath, Path.Combine(portalUploads, uniqueFileName), true);
         }
@@ -134,7 +138,8 @@ public class PartnerController : Controller
             // Copy to PortalApp wwwroot so it loads immediately
             try
             {
-                string portalUploads = Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads", "posts");
+                string portalUploadsRoot = _config["UploadPath"] ?? Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads");
+                string portalUploads = Path.Combine(portalUploadsRoot, "posts");
                 Directory.CreateDirectory(portalUploads);
                 System.IO.File.Copy(filePath, Path.Combine(portalUploads, uniqueFileName), true);
             }
