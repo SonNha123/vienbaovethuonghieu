@@ -204,7 +204,6 @@ D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\rjsmcshtml.dswa.cache.jso
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\scopedcss\bundle\PortalApp.styles.css
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\scopedcss\projectbundle\PortalApp.bundle.scp.css
-D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\compressed\iltfolrm7s-{0}-tfe3uqn2b4-tfe3uqn2b4.gz
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\compressed\u8wscvzkvk-{0}-61n19gt1b8-61n19gt1b8.gz
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\compressed\gu8i6066ph-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\compressed\u126519uv9-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -280,3 +279,4 @@ D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\PortalApp.pdb
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\PortalApp.genruntimeconfig.cache
 D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\ref\PortalApp.dll
 D:\DEV\vienbaovethuonghieu\PortalApp\bin\Debug\net10.0\appsettings.Secrets.json
+D:\DEV\vienbaovethuonghieu\PortalApp\obj\Debug\net10.0\compressed\iltfolrm7s-{0}-uhe4b3ilhr-uhe4b3ilhr.gz
