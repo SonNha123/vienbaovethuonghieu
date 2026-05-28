@@ -48,61 +48,134 @@
 
                 @if (posts.Any())
                 {
-                    var featuredLarge = posts.FirstOrDefault()!;
-                    var featuredSmall = posts.Skip(1).Take(2).ToList();
-                    var bottomPosts = posts.Skip(3).Take(3).ToList();
+                    var layout = cat.DisplayLayout ?? "Standard";
 
-                    <!-- Row 1: 1 Large + 2 Small -->
-                    <div class="row g-3 mb-0">
-                        <!-- Left: Large Post -->
-                        <div class="col-md-8">
-                            <div class="large-post-card">
-                                <div class="large-post-img-wrapper rounded-2 overflow-hidden mb-3">
-                                    <a asp-action="PostDetail" asp-route-slug="@featuredLarge.Slug">
-                                        <img src="@(string.IsNullOrEmpty(featuredLarge.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600" : featuredLarge.ImageUrl)" alt="@featuredLarge.Title" />
-                                    </a>
-                                </div>
-                                <h4 class="large-post-title brand-font mb-2">
-                                    <a asp-action="PostDetail" asp-route-slug="@featuredLarge.Slug">@featuredLarge.Title</a>
-                                </h4>
-                                <p class="text-muted small mb-0 lh-lg" style="text-align: justify; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">@featuredLarge.Summary</p>
-                            </div>
-                        </div>
-
-                        <!-- Right: 2 Small stacked -->
-                        <div class="col-md-4 d-flex flex-column gap-3">
-                            @foreach (var p in featuredSmall)
-                            {
-                                <div class="small-post-vertical">
-                                    <div class="small-post-img-wrapper rounded-2 overflow-hidden mb-2" style="height: 130px;">
-                                        <a asp-action="PostDetail" asp-route-slug="@p.Slug">
-                                            <img src="@(string.IsNullOrEmpty(p.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : p.ImageUrl)" alt="@p.Title" style="width:100%;height:100%;object-fit:cover;" />
-                                        </a>
-                                    </div>
-                                    <h5 class="small-post-title m-0 brand-font" style="font-size: 0.9rem;">
-                                        <a asp-action="PostDetail" asp-route-slug="@p.Slug">@p.Title</a>
-                                    </h5>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Bottom 3 posts with border separators -->
-                    @if (bottomPosts.Any())
+                    @if (layout == "Grid")
                     {
-                        <div class="category-bottom-grid">
-                            @foreach (var bp in bottomPosts)
+                        <div class="row g-3">
+                            @foreach (var post in posts.Take(4))
                             {
-                                <div class="category-bottom-item">
-                                    <h6>
-                                        <a asp-action="PostDetail" asp-route-slug="@bp.Slug">@bp.Title</a>
-                                    </h6>
-                                    <p>@bp.Summary</p>
+                                <div class="col-md-6 col-12 mb-2">
+                                    <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden hover-lift" style="transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color) !important;">
+                                        <div style="height: 150px; overflow: hidden; position: relative;">
+                                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                                <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" alt="@post.Title" />
+                                            </a>
+                                        </div>
+                                        <div class="card-body d-flex flex-column p-3">
+                                            <h5 class="card-title fw-bold" style="font-size: 0.95rem; line-height: 1.4; margin-bottom: 5px;">
+                                                <a asp-action="PostDetail" asp-route-slug="@post.Slug" class="text-dark text-decoration-none hover-primary">@post.Title</a>
+                                            </h5>
+                                            <p class="card-text text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.4;">@post.Summary</p>
+                                            <div class="text-muted small mt-2" style="font-size: 0.72rem;">
+                                                <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             }
                         </div>
                     }
-                }
+                    else if (layout == "List")
+                    {
+                        @foreach (var post in posts.Take(4))
+                        {
+                            <div class="horizontal-news-card d-flex gap-3 mb-3 pb-3 border-bottom" style="border-bottom: 1px dashed var(--border-color) !important;">
+                                <div class="horizontal-news-img" style="width: 140px; height: 90px; overflow: hidden; border-radius: 6px; flex-shrink: 0;">
+                                    <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                        <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" alt="@post.Title" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    </a>
+                                </div>
+                                <div class="horizontal-news-body flex-grow-1">
+                                    <h5 class="fw-bold mb-1" style="font-size: 0.95rem; line-height: 1.35;">
+                                        <a asp-action="PostDetail" asp-route-slug="@post.Slug" class="text-decoration-none text-dark hover-primary">@post.Title</a>
+                                    </h5>
+                                    <p class="text-muted small mb-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.4;">@post.Summary</p>
+                                    <div class="horizontal-news-meta text-muted small" style="font-size: 0.72rem;">
+                                        <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else if (layout == "FeaturedOnly")
+                    {
+                        @foreach (var post in posts.Take(2))
+                        {
+                            <div class="featured-hero-card mb-3 p-2 border rounded-3 bg-light">
+                                <div class="featured-hero-img rounded overflow-hidden mb-2" style="height: 220px;">
+                                    <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                        <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : post.ImageUrl)" alt="@post.Title" style="width:100%; height:100%; object-fit:cover;" />
+                                    </a>
+                                </div>
+                                <h4 class="brand-font" style="font-size: 1.15rem; line-height: 1.35; margin-bottom: 5px;">
+                                    <a asp-action="PostDetail" asp-route-slug="@post.Slug" class="text-decoration-none text-dark hover-primary">@post.Title</a>
+                                </h4>
+                                <p class="featured-summary text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@post.Summary</p>
+                                <div class="featured-hero-meta text-muted small" style="font-size: 0.72rem;">
+                                    <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+                        }
+                    }
+                    else // Standard
+                    {
+                        var featuredLarge = posts.FirstOrDefault()!;
+                        var featuredSmall = posts.Skip(1).Take(2).ToList();
+                        var bottomPosts = posts.Skip(3).Take(3).ToList();
+
+                        <!-- Row 1: 1 Large + 2 Small -->
+                        <div class="row g-3 mb-0">
+                            <!-- Left: Large Post -->
+                            <div class="col-md-8">
+                                <div class="large-post-card">
+                                    <div class="large-post-img-wrapper rounded-2 overflow-hidden mb-3">
+                                        <a asp-action="PostDetail" asp-route-slug="@featuredLarge.Slug">
+                                            <img src="@(string.IsNullOrEmpty(featuredLarge.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600" : featuredLarge.ImageUrl)" alt="@featuredLarge.Title" />
+                                        </a>
+                                    </div>
+                                    <h4 class="large-post-title brand-font mb-2">
+                                        <a asp-action="PostDetail" asp-route-slug="@featuredLarge.Slug">@featuredLarge.Title</a>
+                                    </h4>
+                                    <p class="text-muted small mb-0 lh-lg" style="text-align: justify; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">@featuredLarge.Summary</p>
+                                </div>
+                            </div>
+
+                            <!-- Right: 2 Small stacked -->
+                            <div class="col-md-4 d-flex flex-column gap-3">
+                                @foreach (var p in featuredSmall)
+                                {
+                                    <div class="small-post-vertical">
+                                        <div class="small-post-img-wrapper rounded-2 overflow-hidden mb-2" style="height: 130px;">
+                                            <a asp-action="PostDetail" asp-route-slug="@p.Slug">
+                                                <img src="@(string.IsNullOrEmpty(p.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : p.ImageUrl)" alt="@p.Title" style="width:100%;height:100%;object-fit:cover;" />
+                                            </a>
+                                        </div>
+                                        <h5 class="small-post-title m-0 brand-font" style="font-size: 0.9rem;">
+                                            <a asp-action="PostDetail" asp-route-slug="@p.Slug">@p.Title</a>
+                                        </h5>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Bottom 3 posts with border separators -->
+                        @if (bottomPosts.Any())
+                        {
+                            <div class="category-bottom-grid">
+                                @foreach (var bp in bottomPosts)
+                                {
+                                    <div class="category-bottom-item">
+                                        <h6>
+                                            <a asp-action="PostDetail" asp-route-slug="@bp.Slug">@bp.Title</a>
+                                        </h6>
+                                        <p style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@bp.Summary</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                }        }
                 else
                 {
                     <p class="text-muted small my-3 text-center">Chưa có bài viết.</p>

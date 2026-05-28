@@ -37,13 +37,26 @@
                         </div>
 
                         <div class="row g-3 mb-3">
+                            <div class="col-md-6 col-12">
+                                <label class="form-label fw-bold text-secondary">Tác giả bài viết (Nhập tay)</label>
+                                <input type="text" name="customAuthor" class="form-control" placeholder="Tên tác giả hiển thị..." />
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <label class="form-label fw-bold text-secondary">Doanh nghiệp liên quan (Nhập tay)</label>
+                                <input type="text" name="customBusiness" class="form-control" placeholder="Tên doanh nghiệp..." />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
                             <div class="col-md-4 col-12">
                                 <label class="form-label fw-bold text-secondary">Ảnh đại diện bài viết (Cover Image)</label>
-                                <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                                <input type="file" name="imageFile" class="form-control mb-2" accept="image/*" />
+                                <input type="text" name="imageCaption" class="form-control form-control-sm" placeholder="Chú thích ảnh đại diện..." />
                             </div>
                             <div class="col-md-4 col-12">
                                 <label class="form-label fw-bold text-secondary">Ảnh bổ sung (Có thể chọn nhiều)</label>
-                                <input type="file" name="additionalImages" class="form-control" accept="image/*" multiple />
+                                <input type="file" name="additionalImages" id="createAdditionalImages" class="form-control mb-2" accept="image/*" multiple />
+                                <div id="createAdditionalCaptionsContainer" class="d-flex flex-column gap-2"></div>
                             </div>
                             <div class="col-md-4 col-12 d-flex align-items-end">
                                 <div class="form-check form-switch mb-2">
@@ -149,7 +162,10 @@
                                                 data-featured="@post.IsFeatured.ToString().ToLower()"
                                                 data-isapproved="@post.IsApproved.ToString().ToLower()"
                                                 data-videotype="@post.VideoType"
-                                                data-videourl="@post.VideoUrl">
+                                                data-videourl="@post.VideoUrl"
+                                                data-customauthor="@post.CustomAuthor"
+                                                data-custombusiness="@post.CustomBusiness"
+                                                data-imagecaption="@post.ImageCaption">
                                             <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
                                         </button>
                                         <a asp-action="DeletePost" asp-route-id="@post.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?')"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
@@ -203,13 +219,26 @@
                     </div>
 
                     <div class="row g-3 mb-3">
+                        <div class="col-md-6 col-12">
+                            <label class="form-label fw-bold text-secondary">Tác giả bài viết (Nhập tay)</label>
+                            <input type="text" name="customAuthor" id="editPostCustomAuthor" class="form-control shadow-sm" placeholder="Tên tác giả hiển thị..." />
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <label class="form-label fw-bold text-secondary">Doanh nghiệp liên quan (Nhập tay)</label>
+                            <input type="text" name="customBusiness" id="editPostCustomBusiness" class="form-control shadow-sm" placeholder="Tên doanh nghiệp..." />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
                         <div class="col-md-4 col-12">
                             <label class="form-label fw-bold text-secondary">Thay đổi ảnh đại diện (Để trống để giữ nguyên)</label>
-                            <input type="file" name="imageFile" class="form-control shadow-sm" accept="image/*" />
+                            <input type="file" name="imageFile" class="form-control shadow-sm mb-2" accept="image/*" />
+                            <input type="text" name="imageCaption" id="editPostImageCaption" class="form-control form-control-sm shadow-sm" placeholder="Chú thích ảnh đại diện..." />
                         </div>
                         <div class="col-md-4 col-12">
                             <label class="form-label fw-bold text-secondary">Thêm ảnh bổ sung (Sẽ thay thế ảnh bổ sung cũ)</label>
-                            <input type="file" name="additionalImages" class="form-control shadow-sm" accept="image/*" multiple />
+                            <input type="file" name="additionalImages" id="editAdditionalImages" class="form-control shadow-sm mb-2" accept="image/*" multiple />
+                            <div id="editAdditionalCaptionsContainer" class="d-flex flex-column gap-2"></div>
                         </div>
                         <div class="col-md-4 col-12 d-flex align-items-center">
                             <div class="d-flex gap-3 mt-3">
@@ -329,6 +358,38 @@
                 }
             });
 
+            // Dynamically generate captions textboxes for additional images in Create form
+            $('#createAdditionalImages').change(function() {
+                var files = this.files;
+                var container = $('#createAdditionalCaptionsContainer');
+                container.empty();
+                for (var i = 0; i < files.length; i++) {
+                    var fileName = files[i].name;
+                    container.append(
+                        '<div class="input-group input-group-sm mb-1">' +
+                        '<span class="input-group-text bg-light text-truncate" style="max-width: 150px;" title="' + fileName + '">' + fileName + '</span>' +
+                        '<input type="text" name="additionalCaptions" class="form-control" placeholder="Chú thích ảnh..." />' +
+                        '</div>'
+                    );
+                }
+            });
+
+            // Dynamically generate captions textboxes for additional images in Edit form
+            $('#editAdditionalImages').change(function() {
+                var files = this.files;
+                var container = $('#editAdditionalCaptionsContainer');
+                container.empty();
+                for (var i = 0; i < files.length; i++) {
+                    var fileName = files[i].name;
+                    container.append(
+                        '<div class="input-group input-group-sm mb-1">' +
+                        '<span class="input-group-text bg-light text-truncate" style="max-width: 150px;" title="' + fileName + '">' + fileName + '</span>' +
+                        '<input type="text" name="additionalCaptions" class="form-control" placeholder="Chú thích ảnh..." />' +
+                        '</div>'
+                    );
+                }
+            });
+
             $('.btn-edit-post').click(function() {
                 var id = $(this).data('id');
                 var title = $(this).data('title');
@@ -337,6 +398,9 @@
                 var approved = $(this).data('isapproved');
                 var videoType = $(this).data('videotype') || 'None';
                 var videoUrl = $(this).data('videourl') || '';
+                var customAuthor = $(this).data('customauthor') || '';
+                var customBusiness = $(this).data('custombusiness') || '';
+                var imageCaption = $(this).data('imagecaption') || '';
 
                 var summary = $('#summary-' + id).val();
                 var content = $('#content-' + id).val();
@@ -347,6 +411,11 @@
                 
                 $('#editPostFeatured').prop('checked', featured === true || featured === 'true');
                 $('#editPostApproved').prop('checked', approved === true || approved === 'true');
+
+                $('#editPostCustomAuthor').val(customAuthor);
+                $('#editPostCustomBusiness').val(customBusiness);
+                $('#editPostImageCaption').val(imageCaption);
+                $('#editAdditionalCaptionsContainer').empty(); // Clear old input lists when opening a new edit
 
                 // Pre-populate video configuration
                 $('#editVideoSource').val(videoType);

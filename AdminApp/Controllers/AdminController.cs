@@ -386,7 +386,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePost(string title, string summary, string content, int categoryId, bool isFeatured, IFormFile? imageFile, List<IFormFile>? additionalImages, string? videoSource, string? youtubeUrl, IFormFile? videoFile)
+    public async Task<IActionResult> CreatePost(string title, string summary, string content, int categoryId, bool isFeatured, IFormFile? imageFile, List<IFormFile>? additionalImages, List<string>? additionalCaptions, string? videoSource, string? youtubeUrl, IFormFile? videoFile, string? customAuthor, string? customBusiness, string? imageCaption)
     {
         if (!await HasPermission("Posts", "Create")) return NoPermissionRedirect();
 
@@ -418,19 +418,28 @@ public class AdminController : Controller
             IsFeatured = isFeatured,
             IsApproved = true, // Admins' and Editors' posts are automatically approved!
             CategoryId = categoryId,
-            AuthorId = user.Id
+            AuthorId = user.Id,
+            CustomAuthor = customAuthor,
+            CustomBusiness = customBusiness,
+            ImageCaption = imageCaption
         };
 
-        // Handle multiple images upload
+        // Handle multiple images upload with captions
         if (additionalImages != null && additionalImages.Any())
         {
-            List<string> additionalUrls = new List<string>();
-            foreach (var img in additionalImages)
+            List<object> additionalUrls = new List<object>();
+            for (int i = 0; i < additionalImages.Count; i++)
             {
+                var img = additionalImages[i];
                 if (img.Length > 0)
                 {
                     string imgUrl = await SaveUploadedFile(img, "posts");
-                    additionalUrls.Add(imgUrl);
+                    string caption = "";
+                    if (additionalCaptions != null && additionalCaptions.Count > i)
+                    {
+                        caption = additionalCaptions[i] ?? "";
+                    }
+                    additionalUrls.Add(new { url = imgUrl, caption = caption });
                 }
             }
             if (additionalUrls.Any())
@@ -464,7 +473,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditPost(int id, string title, string summary, string content, int categoryId, bool isFeatured, bool isApproved, IFormFile? imageFile, List<IFormFile>? additionalImages, string? videoSource, string? youtubeUrl, IFormFile? videoFile)
+    public async Task<IActionResult> EditPost(int id, string title, string summary, string content, int categoryId, bool isFeatured, bool isApproved, IFormFile? imageFile, List<IFormFile>? additionalImages, List<string>? additionalCaptions, string? videoSource, string? youtubeUrl, IFormFile? videoFile, string? customAuthor, string? customBusiness, string? imageCaption)
     {
         if (!await HasPermission("Posts", "Edit")) return NoPermissionRedirect();
 
@@ -488,22 +497,31 @@ public class AdminController : Controller
         post.CategoryId = categoryId;
         post.IsFeatured = isFeatured;
         post.IsApproved = isApproved;
+        post.CustomAuthor = customAuthor;
+        post.CustomBusiness = customBusiness;
+        post.ImageCaption = imageCaption;
 
         if (imageFile != null)
         {
             post.ImageUrl = await SaveUploadedFile(imageFile, "posts");
         }
 
-        // Handle multiple images upload
+        // Handle multiple images upload with captions
         if (additionalImages != null && additionalImages.Any())
         {
-            List<string> additionalUrls = new List<string>();
-            foreach (var img in additionalImages)
+            List<object> additionalUrls = new List<object>();
+            for (int i = 0; i < additionalImages.Count; i++)
             {
+                var img = additionalImages[i];
                 if (img.Length > 0)
                 {
                     string imgUrl = await SaveUploadedFile(img, "posts");
-                    additionalUrls.Add(imgUrl);
+                    string caption = "";
+                    if (additionalCaptions != null && additionalCaptions.Count > i)
+                    {
+                        caption = additionalCaptions[i] ?? "";
+                    }
+                    additionalUrls.Add(new { url = imgUrl, caption = caption });
                 }
             }
             if (additionalUrls.Any())

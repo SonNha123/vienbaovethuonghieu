@@ -42,4 +42,13 @@ public class Post
 
     public int AuthorId { get; set; }
     public User? Author { get; set; }
+
+    [StringLength(250)]
+    public string? CustomAuthor { get; set; }
+
+    [StringLength(250)]
+    public string? CustomBusiness { get; set; }
+
+    [StringLength(500)]
+    public string? ImageCaption { get; set; }
 }

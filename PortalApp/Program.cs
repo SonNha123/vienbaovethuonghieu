@@ -69,6 +69,18 @@ using (var scope = app.Services.CreateScope())
             BEGIN
                 ALTER TABLE dbo.Posts ADD AdditionalImages NVARCHAR(MAX) NULL;
             END
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Posts') AND name = 'CustomAuthor')
+            BEGIN
+                ALTER TABLE dbo.Posts ADD CustomAuthor NVARCHAR(250) NULL;
+            END
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Posts') AND name = 'CustomBusiness')
+            BEGIN
+                ALTER TABLE dbo.Posts ADD CustomBusiness NVARCHAR(250) NULL;
+            END
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Posts') AND name = 'ImageCaption')
+            BEGIN
+                ALTER TABLE dbo.Posts ADD ImageCaption NVARCHAR(500) NULL;
+            END
         ");
 
         // 4. Dynamic SQL Migration: Add DisplayLayout to Categories if not exists

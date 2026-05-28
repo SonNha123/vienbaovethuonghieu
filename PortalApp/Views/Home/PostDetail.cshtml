@@ -6,12 +6,12 @@
     var latestPosts = ViewBag.LatestPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
     var sidebarBanners = ViewBag.SidebarBanners as List<New_folder.Models.Banner> ?? new List<New_folder.Models.Banner>();
 
-    List<string> additionalImages = new List<string>();
+    List<System.Text.Json.JsonElement> additionalImages = new List<System.Text.Json.JsonElement>();
     if (!string.IsNullOrEmpty(Model.AdditionalImages))
     {
         try
         {
-            additionalImages = System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.AdditionalImages) ?? new List<string>();
+            additionalImages = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.JsonElement>>(Model.AdditionalImages) ?? new List<System.Text.Json.JsonElement>();
         }
         catch {}
     }
@@ -37,8 +37,16 @@
             <header class="mb-4 pb-4 border-bottom">
                 <span class="badge bg-danger text-uppercase font-monospace mb-2">@Model.Category?.Name</span>
                 <h1 class="brand-font fs-2 text-dark lh-base">@Model.Title</h1>
-                <div class="d-flex align-items-center text-muted small mt-3 flex-wrap gap-2">
+                <div class="d-flex align-items-center text-muted small mt-3 flex-wrap gap-3">
                     <span><i class="fa-regular fa-clock me-1"></i> Đăng lúc: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                    @if (!string.IsNullOrEmpty(Model.CustomAuthor))
+                    {
+                        <span><i class="fa-regular fa-user me-1"></i> Tác giả: <strong>@Model.CustomAuthor</strong></span>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CustomBusiness))
+                    {
+                        <span><i class="fa-solid fa-building me-1"></i> Doanh nghiệp: <strong>@Model.CustomBusiness</strong></span>
+                    }
                 </div>
             </header>
 
@@ -90,7 +98,13 @@
             else if (!string.IsNullOrEmpty(Model.ImageUrl))
             {
                 <div class="text-center mb-4 overflow-hidden rounded-3 border">
-                    <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid" style="max-height: 450px; width: 100%; object-fit: cover;" />
+                    <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid w-100" style="max-height: 450px; object-fit: cover;" />
+                    @if (!string.IsNullOrEmpty(Model.ImageCaption))
+                    {
+                        <div class="py-2 px-3 bg-light text-center border-top text-muted small fst-italic">
+                            @Model.ImageCaption
+                        </div>
+                    }
                 </div>
             }
 
@@ -101,30 +115,42 @@
             @if (additionalImages != null && additionalImages.Any())
             {
                 <div class="mb-4 pt-4 border-top">
-                    <h5 class="brand-font text-secondary text-uppercase mb-3"><i class="fa-solid fa-images me-2 text-warning"></i> Thư viện hình ảnh</h5>
-                    <div id="additionalImagesCarousel" class="carousel slide shadow-sm rounded-3 overflow-hidden border" data-bs-ride="carousel">
-                        <div class="carousel-indicators">
-                            @for (int idx = 0; idx < additionalImages.Count; idx++)
+                    <h5 class="brand-font text-secondary text-uppercase mb-3"><i class="fa-solid fa-images me-2 text-warning"></i> Hình ảnh liên quan</h5>
+                    <div class="d-flex flex-column gap-4">
+                        @foreach (var imgObj in additionalImages)
+                        {
+                            string imgUrl = "";
+                            string imgCaption = "";
+
+                            if (imgObj.ValueKind == System.Text.Json.JsonValueKind.String)
                             {
-                                <button type="button" data-bs-target="#additionalImagesCarousel" data-bs-slide-to="@idx" class="@(idx == 0 ? "active" : "")" aria-current="@(idx == 0 ? "true" : "false")" aria-label="Slide @(idx + 1)"></button>
+                                imgUrl = imgObj.GetString() ?? "";
                             }
-                        </div>
-                        <div class="carousel-inner">
-                            @for (int idx = 0; idx < additionalImages.Count; idx++)
+                            else if (imgObj.ValueKind == System.Text.Json.JsonValueKind.Object)
                             {
-                                <div class="carousel-item @(idx == 0 ? "active" : "")">
-                                    <img src="@additionalImages[idx]" class="d-block w-100" style="height: 450px; object-fit: cover;" alt="Hình ảnh bổ sung @(idx + 1)">
+                                if (imgObj.TryGetProperty("url", out var urlProp))
+                                {
+                                    imgUrl = urlProp.GetString() ?? "";
+                                }
+                                if (imgObj.TryGetProperty("caption", out var capProp))
+                                {
+                                    imgCaption = capProp.GetString() ?? "";
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(imgUrl))
+                            {
+                                <div class="text-center overflow-hidden rounded-3 border">
+                                    <img src="@imgUrl" class="img-fluid w-100" style="max-height: 500px; object-fit: cover;" alt="@imgCaption">
+                                    @if (!string.IsNullOrEmpty(imgCaption))
+                                    {
+                                        <div class="py-2 px-3 bg-light text-center border-top text-muted small fst-italic">
+                                            @imgCaption
+                                        </div>
+                                    }
                                 </div>
                             }
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#additionalImagesCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Trước</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#additionalImagesCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Sau</span>
-                        </button>
+                        }
                     </div>
                 </div>
             }
