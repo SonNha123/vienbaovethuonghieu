@@ -19,6 +19,7 @@
                         <th class="ps-4" style="width: 80px;">ID</th>
                         <th>Tên chuyên mục</th>
                         <th>Slug</th>
+                        <th>Bố cục</th>
                         <th class="text-center" style="width: 150px;">Thứ tự hiển thị</th>
                         <th class="text-center" style="width: 180px;">Hiển thị Navbar</th>
                         <th class="text-end pe-4" style="width: 180px;">Hành động</th>
@@ -31,6 +32,13 @@
                             <td class="ps-4 font-monospace fw-bold">#@item.Id</td>
                             <td class="fw-bold">@item.Name</td>
                             <td class="text-secondary font-monospace">@item.Slug</td>
+                            <td>
+                                @if (item.DisplayLayout == "Standard") { <span class="badge bg-secondary">Tiêu chuẩn</span> }
+                                else if (item.DisplayLayout == "Grid") { <span class="badge bg-info text-dark">Lưới ô</span> }
+                                else if (item.DisplayLayout == "List") { <span class="badge bg-success">Danh sách</span> }
+                                else if (item.DisplayLayout == "FeaturedOnly") { <span class="badge bg-warning text-dark">Tiêu điểm</span> }
+                                else { <span class="badge bg-secondary">@item.DisplayLayout</span> }
+                            </td>
                             <td class="text-center font-monospace">@item.DisplayOrder</td>
                             <td class="text-center">
                                 <div class="form-check form-switch d-inline-block">
@@ -43,6 +51,7 @@
                                         data-name="@item.Name" 
                                         data-order="@item.DisplayOrder" 
                                         data-nav="@(item.IsShownOnNav ? "true" : "false")"
+                                        data-layout="@item.DisplayLayout"
                                         title="Chỉnh sửa">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
@@ -71,6 +80,15 @@
                     <div class="mb-3">
                         <label class="form-label font-monospace small text-secondary">Tên chuyên mục (*)</label>
                         <input type="text" name="name" class="form-control" placeholder="Ví dụ: Góc nhìn Doanh nghiệp" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label font-monospace small text-secondary">Bố cục hiển thị chuyên mục</label>
+                        <select name="displayLayout" class="form-select">
+                            <option value="Standard">Báo chí (Tiêu chuẩn)</option>
+                            <option value="Grid">Lưới ô (3 cột)</option>
+                            <option value="List">Danh sách dọc</option>
+                            <option value="FeaturedOnly">Tiêu điểm nổi bật</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label font-monospace small text-secondary">Thứ tự hiển thị (Số nhỏ xếp trước)</label>
@@ -106,6 +124,15 @@
                         <input type="text" name="name" id="editCategoryName" class="form-control" required />
                     </div>
                     <div class="mb-3">
+                        <label class="form-label font-monospace small text-secondary">Bố cục hiển thị chuyên mục</label>
+                        <select name="displayLayout" id="editCategoryLayout" class="form-select">
+                            <option value="Standard">Báo chí (Tiêu chuẩn)</option>
+                            <option value="Grid">Lưới ô (3 cột)</option>
+                            <option value="List">Danh sách dọc</option>
+                            <option value="FeaturedOnly">Tiêu điểm nổi bật</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label font-monospace small text-secondary">Thứ tự hiển thị (Số nhỏ xếp trước)</label>
                         <input type="number" name="displayOrder" id="editCategoryOrder" class="form-control" />
                     </div>
@@ -132,10 +159,12 @@
                 var name = $(this).data('name');
                 var order = $(this).data('order');
                 var nav = $(this).data('nav');
+                var layout = $(this).data('layout');
                 
                 $('#editCategoryId').val(id);
                 $('#editCategoryName').val(name);
                 $('#editCategoryOrder').val(order);
+                $('#editCategoryLayout').val(layout || 'Standard');
                 
                 if (nav === true || nav === 'true') {
                     $('#editCategoryNav').prop('checked', true);

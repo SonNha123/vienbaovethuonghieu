@@ -5,6 +5,16 @@
     var relatedPosts = ViewBag.RelatedPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
     var latestPosts = ViewBag.LatestPosts as List<New_folder.Models.Post> ?? new List<New_folder.Models.Post>();
     var sidebarBanners = ViewBag.SidebarBanners as List<New_folder.Models.Banner> ?? new List<New_folder.Models.Banner>();
+
+    List<string> additionalImages = new List<string>();
+    if (!string.IsNullOrEmpty(Model.AdditionalImages))
+    {
+        try
+        {
+            additionalImages = System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.AdditionalImages) ?? new List<string>();
+        }
+        catch {}
+    }
 }
 
 <!-- BREADCRUMB -->
@@ -29,11 +39,6 @@
                 <h1 class="brand-font fs-2 text-dark lh-base">@Model.Title</h1>
                 <div class="d-flex align-items-center text-muted small mt-3 flex-wrap gap-2">
                     <span><i class="fa-regular fa-clock me-1"></i> Đăng lúc: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
-                    <span><i class="fa-regular fa-user me-1"></i> Tác giả: <strong>@Model.Author?.FullName</strong></span>
-                    @if (!string.IsNullOrEmpty(Model.Author?.CompanyName))
-                    {
-                        <span><i class="fa-solid fa-building me-1"></i> Doanh nghiệp: <strong>@Model.Author.CompanyName</strong></span>
-                    }
                 </div>
             </header>
 
@@ -44,9 +49,47 @@
                 </div>
             }
 
-            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            @if (Model.VideoType == "YouTube" && !string.IsNullOrEmpty(Model.VideoUrl))
             {
-                <div class="text-center mb-4 overflow-hidden rounded-3">
+                <!-- Handle YouTube Video Embed -->
+                var youtubeUrl = Model.VideoUrl;
+                var embedUrl = youtubeUrl;
+                if (youtubeUrl.Contains("watch?v="))
+                {
+                    var parts = youtubeUrl.Split("v=");
+                    if (parts.Length > 1)
+                    {
+                        var id = parts[1].Split("&")[0];
+                        embedUrl = $"https://www.youtube.com/embed/{id}";
+                    }
+                }
+                else if (youtubeUrl.Contains("youtu.be/"))
+                {
+                    var parts = youtubeUrl.Split("youtu.be/");
+                    if (parts.Length > 1)
+                    {
+                        var id = parts[1].Split("?")[0];
+                        embedUrl = $"https://www.youtube.com/embed/{id}";
+                    }
+                }
+
+                <div class="ratio ratio-16x9 mb-4 overflow-hidden rounded-3 shadow-sm border">
+                    <iframe src="@embedUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            }
+            else if (Model.VideoType == "Local" && !string.IsNullOrEmpty(Model.VideoUrl))
+            {
+                <!-- Handle Local Video Player -->
+                <div class="mb-4 overflow-hidden rounded-3 shadow-sm border bg-black">
+                    <video class="w-100" style="max-height: 500px;" controls preload="metadata" poster="@(string.IsNullOrEmpty(Model.ImageUrl) ? "" : Model.ImageUrl)">
+                        <source src="@Model.VideoUrl" type="@(Model.VideoUrl.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) ? "video/webm" : "video/mp4")">
+                        Trình duyệt của bạn không hỗ trợ thẻ phát video HTML5.
+                    </video>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="text-center mb-4 overflow-hidden rounded-3 border">
                     <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid" style="max-height: 450px; width: 100%; object-fit: cover;" />
                 </div>
             }
@@ -54,6 +97,37 @@
             <div class="article-content text-dark fs-6 lh-lg mb-5" style="text-align: justify; word-break: break-word;">
                 @Html.Raw(Model.Content)
             </div>
+
+            @if (additionalImages != null && additionalImages.Any())
+            {
+                <div class="mb-4 pt-4 border-top">
+                    <h5 class="brand-font text-secondary text-uppercase mb-3"><i class="fa-solid fa-images me-2 text-warning"></i> Thư viện hình ảnh</h5>
+                    <div id="additionalImagesCarousel" class="carousel slide shadow-sm rounded-3 overflow-hidden border" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            @for (int idx = 0; idx < additionalImages.Count; idx++)
+                            {
+                                <button type="button" data-bs-target="#additionalImagesCarousel" data-bs-slide-to="@idx" class="@(idx == 0 ? "active" : "")" aria-current="@(idx == 0 ? "true" : "false")" aria-label="Slide @(idx + 1)"></button>
+                            }
+                        </div>
+                        <div class="carousel-inner">
+                            @for (int idx = 0; idx < additionalImages.Count; idx++)
+                            {
+                                <div class="carousel-item @(idx == 0 ? "active" : "")">
+                                    <img src="@additionalImages[idx]" class="d-block w-100" style="height: 450px; object-fit: cover;" alt="Hình ảnh bổ sung @(idx + 1)">
+                                </div>
+                            }
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#additionalImagesCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Trước</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#additionalImagesCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Sau</span>
+                        </button>
+                    </div>
+                </div>
+            }
 
             <footer class="pt-4 border-top">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">

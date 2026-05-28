@@ -66,6 +66,30 @@ using (var scope = app.Services.CreateScope())
             END
         ");
 
+        // 3. Dynamic SQL Migration: Add VideoUrl, VideoType, and AdditionalImages to Posts if not exists
+        context.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Posts') AND name = 'VideoUrl')
+            BEGIN
+                ALTER TABLE dbo.Posts ADD VideoUrl NVARCHAR(500) NULL;
+            END
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Posts') AND name = 'VideoType')
+            BEGIN
+                ALTER TABLE dbo.Posts ADD VideoType NVARCHAR(50) NULL;
+            END
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Posts') AND name = 'AdditionalImages')
+            BEGIN
+                ALTER TABLE dbo.Posts ADD AdditionalImages NVARCHAR(MAX) NULL;
+            END
+        ");
+
+        // 4. Dynamic SQL Migration: Add DisplayLayout to Categories if not exists
+        context.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Categories') AND name = 'DisplayLayout')
+            BEGIN
+                ALTER TABLE dbo.Categories ADD DisplayLayout NVARCHAR(50) NOT NULL DEFAULT 'Standard';
+            END
+        ");
+
         // Self-healing database correction for Admin password hash
         var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin");
         if (adminUser != null && adminUser.PasswordHash == "9c3c137db0f1cd0bfa8f1ad8b3ad8540c115c5443fa484cf75306ba2dfd9f4e2")

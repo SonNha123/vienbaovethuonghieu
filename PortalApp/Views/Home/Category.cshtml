@@ -29,50 +29,115 @@
     <div class="col-lg-8">
         @if (Model.Any())
         {
-            <!-- Featured Hero: First Post -->
-            var heroPost = Model.First();
-            <div class="featured-hero-card">
-                <div class="featured-hero-img">
-                    <a asp-action="PostDetail" asp-route-slug="@heroPost.Slug">
-                        <img src="@(string.IsNullOrEmpty(heroPost.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : heroPost.ImageUrl)" alt="@heroPost.Title" />
-                    </a>
-                </div>
-                <h2 class="brand-font">
-                    <a asp-action="PostDetail" asp-route-slug="@heroPost.Slug">@heroPost.Title</a>
-                </h2>
-                <p class="featured-summary">@heroPost.Summary</p>
-                <div class="featured-hero-meta">
-                    <i class="fa-regular fa-clock me-1"></i> @heroPost.CreatedAt.ToString("dd/MM/yyyy")
-                    @if (heroPost.Author != null)
+            var layout = category?.DisplayLayout ?? "Standard";
+
+            @if (layout == "Grid")
+            {
+                <div class="row g-4">
+                    @foreach (var post in Model)
                     {
-                        <span class="ms-3"><i class="fa-regular fa-user me-1"></i> @heroPost.Author.FullName</span>
+                        <div class="col-md-6 col-12 mb-3">
+                            <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden hover-lift" style="transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color) !important;">
+                                <div style="height: 180px; overflow: hidden; position: relative;">
+                                    <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                        <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" alt="@post.Title" />
+                                    </a>
+                                </div>
+                                <div class="card-body d-flex flex-column p-3">
+                                    <h5 class="card-title fw-bold" style="font-size: 1.05rem; line-height: 1.4;">
+                                        <a asp-action="PostDetail" asp-route-slug="@post.Slug" class="text-dark text-decoration-none hover-primary">@post.Title</a>
+                                    </h5>
+                                    <p class="card-text text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">@post.Summary</p>
+                                    <div class="text-muted small mt-2">
+                                        <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
-            </div>
-
-            <!-- Remaining Posts: Horizontal Cards -->
-            @foreach (var post in Model.Skip(1))
+            }
+            else if (layout == "List")
             {
-                <div class="horizontal-news-card">
-                    <div class="horizontal-news-img">
-                        <a asp-action="PostDetail" asp-route-slug="@post.Slug">
-                            <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" alt="@post.Title" />
-                        </a>
-                    </div>
-                    <div class="horizontal-news-body">
-                        <h5>
-                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">@post.Title</a>
-                        </h5>
-                        <p>@post.Summary</p>
-                        <div class="horizontal-news-meta">
-                            <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
-                            @if (post.Author != null)
-                            {
-                                <span class="ms-2">| <i class="fa-regular fa-user me-1"></i> @post.Author.FullName</span>
-                            }
+                @foreach (var post in Model)
+                {
+                    <div class="horizontal-news-card">
+                        <div class="horizontal-news-img">
+                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" alt="@post.Title" />
+                            </a>
+                        </div>
+                        <div class="horizontal-news-body">
+                            <h5>
+                                <a asp-action="PostDetail" asp-route-slug="@post.Slug">@post.Title</a>
+                            </h5>
+                            <p>@post.Summary</p>
+                            <div class="horizontal-news-meta">
+                                <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                            </div>
                         </div>
                     </div>
+                }
+            }
+            else if (layout == "FeaturedOnly")
+            {
+                @foreach (var post in Model)
+                {
+                    <div class="featured-hero-card mb-4">
+                        <div class="featured-hero-img">
+                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : post.ImageUrl)" alt="@post.Title" />
+                            </a>
+                        </div>
+                        <h2 class="brand-font">
+                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">@post.Title</a>
+                        </h2>
+                        <p class="featured-summary">@post.Summary</p>
+                        <div class="featured-hero-meta">
+                            <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                }
+            }
+            else // Standard
+            {
+                <!-- Featured Hero: First Post -->
+                var heroPost = Model.First();
+                <div class="featured-hero-card">
+                    <div class="featured-hero-img">
+                        <a asp-action="PostDetail" asp-route-slug="@heroPost.Slug">
+                            <img src="@(string.IsNullOrEmpty(heroPost.ImageUrl) ? "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800" : heroPost.ImageUrl)" alt="@heroPost.Title" />
+                        </a>
+                    </div>
+                    <h2 class="brand-font">
+                        <a asp-action="PostDetail" asp-route-slug="@heroPost.Slug">@heroPost.Title</a>
+                    </h2>
+                    <p class="featured-summary">@heroPost.Summary</p>
+                    <div class="featured-hero-meta">
+                        <i class="fa-regular fa-clock me-1"></i> @heroPost.CreatedAt.ToString("dd/MM/yyyy")
+                    </div>
                 </div>
+
+                <!-- Remaining Posts: Horizontal Cards -->
+                @foreach (var post in Model.Skip(1))
+                {
+                    <div class="horizontal-news-card">
+                        <div class="horizontal-news-img">
+                            <a asp-action="PostDetail" asp-route-slug="@post.Slug">
+                                <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=300" : post.ImageUrl)" alt="@post.Title" />
+                            </a>
+                        </div>
+                        <div class="horizontal-news-body">
+                            <h5>
+                                <a asp-action="PostDetail" asp-route-slug="@post.Slug">@post.Title</a>
+                            </h5>
+                            <p>@post.Summary</p>
+                            <div class="horizontal-news-meta">
+                                <i class="fa-regular fa-clock me-1"></i> @post.CreatedAt.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                    </div>
+                }
             }
 
             <!-- PAGINATION -->

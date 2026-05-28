@@ -23,6 +23,14 @@ public class Post
     [StringLength(500)]
     public string? ImageUrl { get; set; }
 
+    [StringLength(500)]
+    public string? VideoUrl { get; set; }
+
+    [StringLength(50)]
+    public string? VideoType { get; set; } // "None", "YouTube", "Local"
+
+    public string? AdditionalImages { get; set; } // Comma-separated or JSON list of additional image URLs
+
     public bool IsFeatured { get; set; } = false;
 
     public bool IsApproved { get; set; } = false;

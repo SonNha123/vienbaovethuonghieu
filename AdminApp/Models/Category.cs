@@ -18,5 +18,9 @@ public class Category
 
     public bool IsShownOnNav { get; set; } = true;
 
+    [Required]
+    [StringLength(50)]
+    public string DisplayLayout { get; set; } = "Standard"; // "Standard", "Grid", "List", "FeaturedOnly"
+
     public ICollection<Post> Posts { get; set; } = new List<Post>();
 }

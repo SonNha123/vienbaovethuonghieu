@@ -37,15 +37,39 @@
                         </div>
 
                         <div class="row g-3 mb-3">
-                            <div class="col-md-6 col-12">
+                            <div class="col-md-4 col-12">
                                 <label class="form-label fw-bold text-secondary">Ảnh đại diện bài viết (Cover Image)</label>
                                 <input type="file" name="imageFile" class="form-control" accept="image/*" />
                             </div>
-                            <div class="col-md-6 col-12 d-flex align-items-end">
+                            <div class="col-md-4 col-12">
+                                <label class="form-label fw-bold text-secondary">Ảnh bổ sung (Có thể chọn nhiều)</label>
+                                <input type="file" name="additionalImages" class="form-control" accept="image/*" multiple />
+                            </div>
+                            <div class="col-md-4 col-12 d-flex align-items-end">
                                 <div class="form-check form-switch mb-2">
                                     <input class="form-check-input" type="checkbox" role="switch" id="isFeatured" name="isFeatured" value="true">
                                     <label class="form-check-label fw-bold text-danger" for="isFeatured">Ghim bài viết lên tiêu điểm Slide trang chủ</label>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3 bg-light p-3 rounded border">
+                            <div class="col-md-4 col-12">
+                                <label class="form-label fw-bold text-secondary">Nguồn Video bài viết</label>
+                                <select name="videoSource" id="createVideoSource" class="form-select">
+                                    <option value="None">Không có video</option>
+                                    <option value="YouTube">YouTube URL</option>
+                                    <option value="Upload">Tải video lên (Tự động nén WebM)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8 col-12" id="createYoutubeUrlContainer" style="display: none;">
+                                <label class="form-label fw-bold text-secondary">Đường dẫn YouTube Video <span class="text-danger">*</span></label>
+                                <input type="text" name="youtubeUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+                            </div>
+                            <div class="col-md-8 col-12" id="createVideoFileContainer" style="display: none;">
+                                <label class="form-label fw-bold text-secondary">Tệp Video <span class="text-danger">*</span></label>
+                                <input type="file" name="videoFile" class="form-control" accept="video/*" />
+                                <span class="text-muted small"><i class="fa-solid fa-circle-info"></i> Hệ thống tự động tối ưu hóa tệp tin video của bạn.</span>
                             </div>
                         </div>
 
@@ -123,7 +147,9 @@
                                                 data-title="@post.Title"
                                                 data-categoryid="@post.CategoryId"
                                                 data-featured="@post.IsFeatured.ToString().ToLower()"
-                                                data-isapproved="@post.IsApproved.ToString().ToLower()">
+                                                data-isapproved="@post.IsApproved.ToString().ToLower()"
+                                                data-videotype="@post.VideoType"
+                                                data-videourl="@post.VideoUrl">
                                             <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
                                         </button>
                                         <a asp-action="DeletePost" asp-route-id="@post.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?')"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
@@ -177,21 +203,45 @@
                     </div>
 
                     <div class="row g-3 mb-3">
-                        <div class="col-md-6 col-12">
-                            <label class="form-label fw-bold text-secondary">Thay đổi ảnh đại diện bài viết (Để trống nếu giữ nguyên)</label>
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold text-secondary">Thay đổi ảnh đại diện (Để trống để giữ nguyên)</label>
                             <input type="file" name="imageFile" class="form-control shadow-sm" accept="image/*" />
                         </div>
-                        <div class="col-md-6 col-12 d-flex align-items-center">
-                            <div class="d-flex gap-4 mt-3">
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold text-secondary">Thêm ảnh bổ sung (Sẽ thay thế ảnh bổ sung cũ)</label>
+                            <input type="file" name="additionalImages" class="form-control shadow-sm" accept="image/*" multiple />
+                        </div>
+                        <div class="col-md-4 col-12 d-flex align-items-center">
+                            <div class="d-flex gap-3 mt-3">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="editPostFeatured" name="isFeatured" value="true">
-                                    <label class="form-check-label fw-bold text-danger" for="editPostFeatured">Ghim bài viết lên tiêu điểm Slide</label>
+                                    <label class="form-check-label fw-bold text-danger" for="editPostFeatured">Ghim Slide</label>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="editPostApproved" name="isApproved" value="true">
-                                    <label class="form-check-label fw-bold text-success" for="editPostApproved">Phê duyệt hiển thị</label>
+                                    <label class="form-check-label fw-bold text-success" for="editPostApproved">Duyệt hiển thị</label>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3 bg-white p-3 rounded border shadow-sm">
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold text-secondary">Cấu hình Video bài viết</label>
+                            <select name="videoSource" id="editVideoSource" class="form-select">
+                                <option value="None">Không có video</option>
+                                <option value="YouTube">YouTube URL</option>
+                                <option value="Upload">Tải video mới lên</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8 col-12" id="editYoutubeUrlContainer" style="display: none;">
+                            <label class="form-label fw-bold text-secondary">Đường dẫn YouTube Video <span class="text-danger">*</span></label>
+                            <input type="text" name="youtubeUrl" id="editYoutubeUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+                        </div>
+                        <div class="col-md-8 col-12" id="editVideoFileContainer" style="display: none;">
+                            <label class="form-label fw-bold text-secondary">Tải lên video mới <span class="text-danger">*</span></label>
+                            <input type="file" name="videoFile" class="form-control" accept="video/*" />
+                            <span class="text-muted small"><i class="fa-solid fa-circle-info"></i> Hệ thống tự động tối ưu hóa tệp tin video của bạn.</span>
                         </div>
                     </div>
 
@@ -249,12 +299,44 @@
             });
 
         $(document).ready(function() {
+            // Toggle video source inputs in Create Form
+            $('#createVideoSource').change(function() {
+                var source = $(this).val();
+                if (source === 'YouTube') {
+                    $('#createYoutubeUrlContainer').show();
+                    $('#createVideoFileContainer').hide();
+                } else if (source === 'Upload') {
+                    $('#createYoutubeUrlContainer').hide();
+                    $('#createVideoFileContainer').show();
+                } else {
+                    $('#createYoutubeUrlContainer').hide();
+                    $('#createVideoFileContainer').hide();
+                }
+            });
+
+            // Toggle video source inputs in Edit Form
+            $('#editVideoSource').change(function() {
+                var source = $(this).val();
+                if (source === 'YouTube') {
+                    $('#editYoutubeUrlContainer').show();
+                    $('#editVideoFileContainer').hide();
+                } else if (source === 'Upload') {
+                    $('#editYoutubeUrlContainer').hide();
+                    $('#editVideoFileContainer').show();
+                } else {
+                    $('#editYoutubeUrlContainer').hide();
+                    $('#editVideoFileContainer').hide();
+                }
+            });
+
             $('.btn-edit-post').click(function() {
                 var id = $(this).data('id');
                 var title = $(this).data('title');
                 var categoryid = $(this).data('categoryid');
                 var featured = $(this).data('featured');
                 var approved = $(this).data('isapproved');
+                var videoType = $(this).data('videotype') || 'None';
+                var videoUrl = $(this).data('videourl') || '';
 
                 var summary = $('#summary-' + id).val();
                 var content = $('#content-' + id).val();
@@ -265,6 +347,22 @@
                 
                 $('#editPostFeatured').prop('checked', featured === true || featured === 'true');
                 $('#editPostApproved').prop('checked', approved === true || approved === 'true');
+
+                // Pre-populate video configuration
+                $('#editVideoSource').val(videoType);
+                if (videoType === 'YouTube') {
+                    $('#editYoutubeUrlContainer').show();
+                    $('#editVideoFileContainer').hide();
+                    $('#editYoutubeUrl').val(videoUrl);
+                } else if (videoType === 'Local') {
+                    $('#editYoutubeUrlContainer').hide();
+                    $('#editVideoFileContainer').show();
+                    $('#editYoutubeUrl').val('');
+                } else {
+                    $('#editYoutubeUrlContainer').hide();
+                    $('#editVideoFileContainer').hide();
+                    $('#editYoutubeUrl').val('');
+                }
 
                 $('#editPostSummary').val(summary);
                 

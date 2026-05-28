@@ -386,7 +386,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreatePost(string title, string summary, string content, int categoryId, bool isFeatured, IFormFile? imageFile)
+    public async Task<IActionResult> CreatePost(string title, string summary, string content, int categoryId, bool isFeatured, IFormFile? imageFile, List<IFormFile>? additionalImages, string? videoSource, string? youtubeUrl, IFormFile? videoFile)
     {
         if (!await HasPermission("Posts", "Create")) return NoPermissionRedirect();
 
@@ -421,6 +421,41 @@ public class AdminController : Controller
             AuthorId = user.Id
         };
 
+        // Handle multiple images upload
+        if (additionalImages != null && additionalImages.Any())
+        {
+            List<string> additionalUrls = new List<string>();
+            foreach (var img in additionalImages)
+            {
+                if (img.Length > 0)
+                {
+                    string imgUrl = await SaveUploadedFile(img, "posts");
+                    additionalUrls.Add(imgUrl);
+                }
+            }
+            if (additionalUrls.Any())
+            {
+                post.AdditionalImages = System.Text.Json.JsonSerializer.Serialize(additionalUrls);
+            }
+        }
+
+        // Handle video configuration
+        if (videoSource == "YouTube" && !string.IsNullOrEmpty(youtubeUrl))
+        {
+            post.VideoType = "YouTube";
+            post.VideoUrl = youtubeUrl;
+        }
+        else if (videoSource == "Upload" && videoFile != null)
+        {
+            post.VideoType = "Local";
+            post.VideoUrl = await SaveUploadedVideo(videoFile);
+        }
+        else
+        {
+            post.VideoType = "None";
+            post.VideoUrl = null;
+        }
+
         _context.Posts.Add(post);
         await _context.SaveChangesAsync();
 
@@ -429,7 +464,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditPost(int id, string title, string summary, string content, int categoryId, bool isFeatured, bool isApproved, IFormFile? imageFile)
+    public async Task<IActionResult> EditPost(int id, string title, string summary, string content, int categoryId, bool isFeatured, bool isApproved, IFormFile? imageFile, List<IFormFile>? additionalImages, string? videoSource, string? youtubeUrl, IFormFile? videoFile)
     {
         if (!await HasPermission("Posts", "Edit")) return NoPermissionRedirect();
 
@@ -457,6 +492,44 @@ public class AdminController : Controller
         if (imageFile != null)
         {
             post.ImageUrl = await SaveUploadedFile(imageFile, "posts");
+        }
+
+        // Handle multiple images upload
+        if (additionalImages != null && additionalImages.Any())
+        {
+            List<string> additionalUrls = new List<string>();
+            foreach (var img in additionalImages)
+            {
+                if (img.Length > 0)
+                {
+                    string imgUrl = await SaveUploadedFile(img, "posts");
+                    additionalUrls.Add(imgUrl);
+                }
+            }
+            if (additionalUrls.Any())
+            {
+                post.AdditionalImages = System.Text.Json.JsonSerializer.Serialize(additionalUrls);
+            }
+        }
+
+        // Handle video configuration
+        if (videoSource == "None")
+        {
+            post.VideoType = "None";
+            post.VideoUrl = null;
+        }
+        else if (videoSource == "YouTube")
+        {
+            post.VideoType = "YouTube";
+            post.VideoUrl = youtubeUrl;
+        }
+        else if (videoSource == "Upload")
+        {
+            if (videoFile != null)
+            {
+                post.VideoType = "Local";
+                post.VideoUrl = await SaveUploadedVideo(videoFile);
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -506,7 +579,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCategory(string name, int displayOrder, bool isShownOnNav)
+    public async Task<IActionResult> CreateCategory(string name, int displayOrder, bool isShownOnNav, string displayLayout)
     {
         if (!await HasPermission("Categories", "Create")) return NoPermissionRedirect();
 
@@ -523,7 +596,8 @@ public class AdminController : Controller
             Name = name,
             Slug = slug,
             DisplayOrder = displayOrder,
-            IsShownOnNav = isShownOnNav
+            IsShownOnNav = isShownOnNav,
+            DisplayLayout = string.IsNullOrEmpty(displayLayout) ? "Standard" : displayLayout
         };
 
         _context.Categories.Add(category);
@@ -534,7 +608,7 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditCategory(int id, string name, int displayOrder, bool isShownOnNav)
+    public async Task<IActionResult> EditCategory(int id, string name, int displayOrder, bool isShownOnNav, string displayLayout)
     {
         if (!await HasPermission("Categories", "Edit")) return NoPermissionRedirect();
 
@@ -555,6 +629,7 @@ public class AdminController : Controller
         category.Slug = GenerateSlug(name);
         category.DisplayOrder = displayOrder;
         category.IsShownOnNav = isShownOnNav;
+        category.DisplayLayout = string.IsNullOrEmpty(displayLayout) ? "Standard" : displayLayout;
 
         await _context.SaveChangesAsync();
 
@@ -703,6 +778,73 @@ public class AdminController : Controller
         catch {}
 
         return "/uploads/" + folder + "/" + uniqueFileName;
+    }
+
+    private async Task<string> SaveUploadedVideo(IFormFile file)
+    {
+        string folder = "videos";
+        string adminUploads = Path.Combine(_env.WebRootPath, "uploads", folder);
+        Directory.CreateDirectory(adminUploads);
+
+        string uniqueId = Guid.NewGuid().ToString();
+        string fileExt = Path.GetExtension(file.FileName).ToLower();
+        string uniqueFileName = uniqueId + fileExt;
+        string adminFilePath = Path.Combine(adminUploads, uniqueFileName);
+
+        using (var fileStream = new FileStream(adminFilePath, FileMode.Create))
+        {
+            await file.CopyToAsync(fileStream);
+        }
+
+        string webmFileName = uniqueId + ".webm";
+        string adminWebmPath = Path.Combine(adminUploads, webmFileName);
+        bool conversionSucceeded = false;
+
+        try
+        {
+            var startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-y -i \"{adminFilePath}\" -c:v libvpx -b:v 1M -crf 30 -c:a libvorbis \"{adminWebmPath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = System.Diagnostics.Process.Start(startInfo))
+            {
+                if (process != null)
+                {
+                    bool finished = process.WaitForExit(15000); // 15 seconds max to prevent browser timeout
+                    if (finished && process.ExitCode == 0)
+                    {
+                        conversionSucceeded = true;
+                        try { System.IO.File.Delete(adminFilePath); } catch {}
+                    }
+                    else
+                    {
+                        if (!finished) process.Kill();
+                    }
+                }
+            }
+        }
+        catch {}
+
+        string finalFileName = conversionSucceeded ? webmFileName : uniqueFileName;
+        string finalAdminPath = Path.Combine(adminUploads, finalFileName);
+
+        try
+        {
+            string portalUploadsRoot = _config["UploadPath"] ?? Path.Combine(Path.GetDirectoryName(_env.ContentRootPath)!, "PortalApp", "wwwroot", "uploads");
+            string portalUploads = Path.Combine(portalUploadsRoot, folder);
+            Directory.CreateDirectory(portalUploads);
+            string portalFilePath = Path.Combine(portalUploads, finalFileName);
+            System.IO.File.Copy(finalAdminPath, portalFilePath, true);
+        }
+        catch {}
+
+        return "/uploads/" + folder + "/" + finalFileName;
     }
 
     private string GenerateSlug(string phrase)

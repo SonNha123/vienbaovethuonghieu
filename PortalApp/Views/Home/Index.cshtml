@@ -30,7 +30,7 @@
                     <a asp-action="PostDetail" asp-route-slug="@mainPost.Slug" class="text-decoration-none text-dark hover-warning" style="line-height: 1.35;">@mainPost.Title</a>
                 </h3>
                 <p class="text-muted small mb-0 lh-lg" style="text-align: justify;">@mainPost.Summary</p>
-                <div class="text-muted small mt-2"><i class="fa-regular fa-clock me-1"></i> @mainPost.CreatedAt.ToString("dd/MM/yyyy") | Tác giả: <strong>@mainPost.Author?.FullName</strong></div>
+                <div class="text-muted small mt-2"><i class="fa-regular fa-clock me-1"></i> @mainPost.CreatedAt.ToString("dd/MM/yyyy")</div>
             </div>
         }
 
