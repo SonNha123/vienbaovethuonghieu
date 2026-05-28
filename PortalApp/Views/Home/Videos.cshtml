@@ -30,7 +30,7 @@
                 <div class="border rounded-3 overflow-hidden bg-white shadow-sm h-100 d-flex flex-column transition-hover" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
                     <a href="#" class="play-video-btn" data-video-url="@video.VideoUrl" data-video-title="@video.Title" title="@video.Title">
                         <div class="video-widget-thumb" style="height: 200px; position: relative; width: 100%; overflow: hidden; background-color: #0f172a;">
-                            <img src="@(string.IsNullOrEmpty(video.ThumbnailUrl) ? "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" : video.ThumbnailUrl)" alt="@video.Title" class="w-100 h-100" style="object-fit: cover; transition: transform 0.35s ease;" />
+                            <img src="@video.GetResolvedThumbnailUrl()" alt="@video.Title" class="w-100 h-100" style="object-fit: cover; transition: transform 0.35s ease;" />
                             <div class="video-play-btn" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background-color: rgba(27, 116, 228, 0.9); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #fff; font-size: 1.25rem; transition: background-color 0.25s, transform 0.25s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                                 <i class="fa-solid fa-play"></i>
                             </div>

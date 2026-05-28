@@ -232,7 +232,7 @@
                         <div class="video-widget-item">
                             <a href="#" class="play-video-btn" data-video-url="@video.VideoUrl" data-video-title="@video.Title" title="@video.Title">
                                 <div class="video-widget-thumb">
-                                    <img src="@(string.IsNullOrEmpty(video.ThumbnailUrl) ? "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" : video.ThumbnailUrl)" alt="@video.Title" />
+                                    <img src="@video.GetResolvedThumbnailUrl()" alt="@video.Title" />
                                     <div class="video-play-btn">
                                         <i class="fa-solid fa-play"></i>
                                     </div>
