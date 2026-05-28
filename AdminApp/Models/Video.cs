@@ -26,14 +26,25 @@ public class Video
 
         if (!string.IsNullOrEmpty(VideoUrl))
         {
-            var match = System.Text.RegularExpressions.Regex.Match(
-                VideoUrl, 
-                @"(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^""&?\/\s]{11})", 
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-            if (match.Success)
+            // 1. Match watch?v= or &v=
+            var vMatch = System.Text.RegularExpressions.Regex.Match(VideoUrl, @"[?&]v=([^#&?]{11})");
+            if (vMatch.Success)
             {
-                return $"https://img.youtube.com/vi/{match.Groups[1].Value}/hqdefault.jpg";
+                return $"https://img.youtube.com/vi/{vMatch.Groups[1].Value}/hqdefault.jpg";
+            }
+
+            // 2. Match embed/, v/, shorts/
+            var pathMatch = System.Text.RegularExpressions.Regex.Match(VideoUrl, @"(?:embed|v|shorts)\/([^#&?]{11})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (pathMatch.Success)
+            {
+                return $"https://img.youtube.com/vi/{pathMatch.Groups[1].Value}/hqdefault.jpg";
+            }
+
+            // 3. Match youtu.be/
+            var shortMatch = System.Text.RegularExpressions.Regex.Match(VideoUrl, @"youtu\.be\/([^#&?]{11})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (shortMatch.Success)
+            {
+                return $"https://img.youtube.com/vi/{shortMatch.Groups[1].Value}/hqdefault.jpg";
             }
         }
 

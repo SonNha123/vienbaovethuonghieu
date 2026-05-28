@@ -292,11 +292,16 @@
                     videoContainer.innerHTML = '';
                 });
 
-                function getYouTubeId(url) {
-                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                    const match = url.match(regExp);
-                    return (match && match[2].length === 11) ? match[2] : null;
-                }
+                 function getYouTubeId(url) {
+                     if (!url) return null;
+                     let match = url.match(/[?&]v=([^#&?]{11})/);
+                     if (match) return match[1];
+                     match = url.match(/(?:embed|v|shorts)\/([^#&?]{11})/);
+                     if (match) return match[1];
+                     match = url.match(/youtu\.be\/([^#&?]{11})/);
+                     if (match) return match[1];
+                     return null;
+                 }
             }
         });
     </script>
