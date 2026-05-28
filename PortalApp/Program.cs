@@ -81,6 +81,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Enable static assets for net10
+app.UseStaticFiles();
 app.MapStaticAssets();
 
 app.UseRouting();
