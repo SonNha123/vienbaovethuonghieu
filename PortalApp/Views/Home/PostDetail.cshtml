@@ -28,6 +28,33 @@
         max-width: 90%;
         text-align: center;
     }
+
+    /* Related Images Carousel premium customization */
+    #relatedImagesCarousel {
+        background-color: #0f172a;
+    }
+    #relatedImagesCarousel .carousel-indicators [data-bs-target] {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin: 0 5px;
+        background-color: rgba(255, 255, 255, 0.4);
+        border: 1.5px solid rgba(0, 0, 0, 0.25);
+        transition: all 0.25s ease;
+    }
+    #relatedImagesCarousel .carousel-indicators .active {
+        background-color: #ffc107; /* Warning yellow matching theme */
+        transform: scale(1.3);
+        box-shadow: 0 0 8px rgba(255, 193, 7, 0.8);
+    }
+    #relatedImagesCarousel .carousel-control-prev-icon,
+    #relatedImagesCarousel .carousel-control-next-icon {
+        transition: transform 0.2s ease;
+    }
+    #relatedImagesCarousel .carousel-control-prev:hover .carousel-control-prev-icon,
+    #relatedImagesCarousel .carousel-control-next:hover .carousel-control-next-icon {
+        transform: scale(1.15);
+    }
 </style>
 
 @{
@@ -146,43 +173,102 @@
             {
                 <div class="mb-4 pt-4 border-top">
                     <h5 class="brand-font text-secondary text-uppercase mb-3"><i class="fa-solid fa-images me-2 text-warning"></i> Hình ảnh liên quan</h5>
-                    <div class="d-flex flex-column gap-4">
-                        @foreach (var imgObj in additionalImages)
-                        {
-                            string imgUrl = "";
-                            string imgCaption = "";
-
-                            if (imgObj.ValueKind == System.Text.Json.JsonValueKind.String)
+                    
+                    <div id="relatedImagesCarousel" class="carousel slide shadow-sm rounded-3 overflow-hidden border" data-bs-ride="carousel">
+                        <!-- Indicators/Dots -->
+                        <div class="carousel-indicators mb-2">
+                            @for (int i = 0; i < additionalImages.Count; i++)
                             {
-                                imgUrl = imgObj.GetString() ?? "";
+                                <button type="button" data-bs-target="#relatedImagesCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
                             }
-                            else if (imgObj.ValueKind == System.Text.Json.JsonValueKind.Object)
-                            {
-                                if (imgObj.TryGetProperty("url", out var urlProp))
-                                {
-                                    imgUrl = urlProp.GetString() ?? "";
-                                }
-                                if (imgObj.TryGetProperty("caption", out var capProp))
-                                {
-                                    imgCaption = capProp.GetString() ?? "";
-                                }
-                            }
+                        </div>
 
-                            if (!string.IsNullOrEmpty(imgUrl))
+                        <!-- Slides wrapper -->
+                        <div class="carousel-inner bg-dark" style="height: 480px;">
+                            @for (int i = 0; i < additionalImages.Count; i++)
                             {
-                                <div class="text-center overflow-hidden rounded-3 border">
-                                    <img src="@imgUrl" class="img-fluid w-100" style="max-height: 500px; object-fit: cover;" alt="@imgCaption">
-                                    @if (!string.IsNullOrEmpty(imgCaption))
+                                var imgObj = additionalImages[i];
+                                string imgUrl = "";
+                                string imgCaption = "";
+
+                                if (imgObj.ValueKind == System.Text.Json.JsonValueKind.String)
+                                {
+                                    imgUrl = imgObj.GetString() ?? "";
+                                }
+                                else if (imgObj.ValueKind == System.Text.Json.JsonValueKind.Object)
+                                {
+                                    if (imgObj.TryGetProperty("url", out var urlProp))
                                     {
-                                        <div class="py-2 px-3 bg-light text-center border-top text-muted small fst-italic">
-                                            @imgCaption
-                                        </div>
+                                        imgUrl = urlProp.GetString() ?? "";
                                     }
-                                </div>
+                                    if (imgObj.TryGetProperty("caption", out var capProp))
+                                    {
+                                        imgCaption = capProp.GetString() ?? "";
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(imgUrl))
+                                {
+                                    <div class="carousel-item h-100 @(i == 0 ? "active" : "")">
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: #0f172a; position: relative;">
+                                            <img src="@imgUrl" class="d-block w-100 h-100" style="object-fit: contain;" alt="@imgCaption">
+                                            @if (!string.IsNullOrEmpty(imgCaption))
+                                            {
+                                                <div class="carousel-caption d-none d-md-block px-3 py-2 rounded-2" style="background: rgba(15, 23, 42, 0.8); bottom: 40px; left: 10%; right: 10%; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15);">
+                                                    <p class="m-0 small fst-italic text-white">@imgCaption</p>
+                                                </div>
+                                                <!-- Hidden element to store raw caption for script usage -->
+                                                <span class="d-none raw-caption">@imgCaption</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             }
-                        }
+                        </div>
+
+                        <!-- Prev/Next Navigation Controls -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#relatedImagesCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon p-3 rounded-circle bg-dark bg-opacity-50" aria-hidden="true"></span>
+                            <span class="visually-hidden">Trước</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#relatedImagesCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon p-3 rounded-circle bg-dark bg-opacity-50" aria-hidden="true"></span>
+                            <span class="visually-hidden">Sau</span>
+                        </button>
                     </div>
+
+                    <!-- Caption container underneath (mobile-friendly and always readable) -->
+                    <div id="carouselMobileCaption" class="py-2 px-3 bg-light border border-top-0 rounded-bottom text-center text-muted small fst-italic shadow-sm mb-3"></div>
                 </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const carousel = document.getElementById('relatedImagesCarousel');
+                        const mobileCaption = document.getElementById('carouselMobileCaption');
+                        
+                        if (carousel && mobileCaption) {
+                            function updateCaption() {
+                                const activeItem = carousel.querySelector('.carousel-item.active');
+                                if (activeItem) {
+                                    const captionEl = activeItem.querySelector('.raw-caption');
+                                    if (captionEl && captionEl.textContent.trim() !== '') {
+                                        mobileCaption.textContent = captionEl.textContent;
+                                        mobileCaption.style.display = 'block';
+                                    } else {
+                                        mobileCaption.textContent = '';
+                                        mobileCaption.style.display = 'none';
+                                    }
+                                }
+                            }
+                            
+                            // Initialize caption on load
+                            setTimeout(updateCaption, 200);
+                            
+                            // Listen to slide transition completion to update caption text
+                            carousel.addEventListener('slid.bs.carousel', updateCaption);
+                        }
+                    });
+                </script>
             }
 
             <footer class="pt-4 border-top">
