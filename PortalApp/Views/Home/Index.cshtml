@@ -50,7 +50,7 @@
                 {
                     var layout = cat.DisplayLayout ?? "Standard";
 
-                    @if (layout == "Grid")
+                    if (string.Equals(layout, "Grid", StringComparison.OrdinalIgnoreCase))
                     {
                         <div class="row g-3">
                             @foreach (var post in posts.Take(4))
@@ -76,9 +76,9 @@
                             }
                         </div>
                     }
-                    else if (layout == "List")
+                    else if (string.Equals(layout, "List", StringComparison.OrdinalIgnoreCase))
                     {
-                        @foreach (var post in posts.Take(4))
+                        foreach (var post in posts.Take(4))
                         {
                             <div class="horizontal-news-card d-flex gap-3 mb-3 pb-3 border-bottom" style="border-bottom: 1px dashed var(--border-color) !important;">
                                 <div class="horizontal-news-img" style="width: 140px; height: 90px; overflow: hidden; border-radius: 6px; flex-shrink: 0;">
@@ -98,9 +98,9 @@
                             </div>
                         }
                     }
-                    else if (layout == "FeaturedOnly")
+                    else if (string.Equals(layout, "FeaturedOnly", StringComparison.OrdinalIgnoreCase))
                     {
-                        @foreach (var post in posts.Take(2))
+                        foreach (var post in posts.Take(2))
                         {
                             <div class="featured-hero-card mb-3 p-2 border rounded-3 bg-light">
                                 <div class="featured-hero-img rounded overflow-hidden mb-2" style="height: 220px;">
@@ -175,7 +175,7 @@
                             </div>
                         }
                     }
-                }        }
+                }
                 else
                 {
                     <p class="text-muted small my-3 text-center">Chưa có bài viết.</p>

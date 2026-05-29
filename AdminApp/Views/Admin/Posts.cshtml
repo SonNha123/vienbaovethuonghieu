@@ -38,11 +38,11 @@
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6 col-12">
-                                <label class="form-label fw-bold text-secondary">Tác giả bài viết (Nhập tay)</label>
+                                <label class="form-label fw-bold text-secondary">Tác giả bài viết</label>
                                 <input type="text" name="customAuthor" class="form-control" placeholder="Tên tác giả hiển thị..." />
                             </div>
                             <div class="col-md-6 col-12">
-                                <label class="form-label fw-bold text-secondary">Doanh nghiệp liên quan (Nhập tay)</label>
+                                <label class="form-label fw-bold text-secondary">Doanh nghiệp liên quan</label>
                                 <input type="text" name="customBusiness" class="form-control" placeholder="Tên doanh nghiệp..." />
                             </div>
                         </div>
@@ -220,11 +220,11 @@
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-6 col-12">
-                            <label class="form-label fw-bold text-secondary">Tác giả bài viết (Nhập tay)</label>
+                            <label class="form-label fw-bold text-secondary">Tác giả bài viết</label>
                             <input type="text" name="customAuthor" id="editPostCustomAuthor" class="form-control shadow-sm" placeholder="Tên tác giả hiển thị..." />
                         </div>
                         <div class="col-md-6 col-12">
-                            <label class="form-label fw-bold text-secondary">Doanh nghiệp liên quan (Nhập tay)</label>
+                            <label class="form-label fw-bold text-secondary">Doanh nghiệp liên quan</label>
                             <input type="text" name="customBusiness" id="editPostCustomBusiness" class="form-control shadow-sm" placeholder="Tên doanh nghiệp..." />
                         </div>
                     </div>
@@ -306,7 +306,10 @@
         // Initialize CKEditor 5 for Create Form
         ClassicEditor
             .create(document.querySelector('#createPostContent'), {
-                placeholder: 'Soạn nội dung chi tiết bài viết tại đây...'
+                placeholder: 'Soạn nội dung chi tiết bài viết tại đây...',
+                simpleUpload: {
+                    uploadUrl: '/Admin/UploadEditorImage'
+                }
             })
             .then(editor => {
                 createEditor = editor;
@@ -318,7 +321,10 @@
         // Initialize CKEditor 5 for Edit Modal
         ClassicEditor
             .create(document.querySelector('#editPostContent'), {
-                placeholder: 'Cập nhật nội dung chi tiết bài viết tại đây...'
+                placeholder: 'Cập nhật nội dung chi tiết bài viết tại đây...',
+                simpleUpload: {
+                    uploadUrl: '/Admin/UploadEditorImage'
+                }
             })
             .then(editor => {
                 editEditor = editor;

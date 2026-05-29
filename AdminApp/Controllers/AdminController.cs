@@ -865,6 +865,30 @@ public class AdminController : Controller
         return "/uploads/" + folder + "/" + finalFileName;
     }
 
+    [HttpPost]
+    public async Task<IActionResult> UploadEditorImage(IFormFile upload)
+    {
+        if (!await HasPermission("Posts", "Create") && !await HasPermission("Posts", "Edit"))
+        {
+            return Json(new { error = new { message = "Bạn không có quyền thực hiện tải ảnh lên." } });
+        }
+
+        if (upload == null || upload.Length == 0)
+        {
+            return Json(new { error = new { message = "Không nhận được tệp tin ảnh." } });
+        }
+
+        try
+        {
+            string imageUrl = await SaveUploadedFile(upload, "posts");
+            return Json(new { url = imageUrl });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { error = new { message = $"Lỗi khi lưu ảnh lên máy chủ: {ex.Message}" } });
+        }
+    }
+
     private string GenerateSlug(string phrase)
     {
         string str = phrase.ToLower();

@@ -31,7 +31,7 @@
         {
             var layout = category?.DisplayLayout ?? "Standard";
 
-            @if (layout == "Grid")
+            if (string.Equals(layout, "Grid", StringComparison.OrdinalIgnoreCase))
             {
                 <div class="row g-4">
                     @foreach (var post in Model)
@@ -57,9 +57,9 @@
                     }
                 </div>
             }
-            else if (layout == "List")
+            else if (string.Equals(layout, "List", StringComparison.OrdinalIgnoreCase))
             {
-                @foreach (var post in Model)
+                foreach (var post in Model)
                 {
                     <div class="horizontal-news-card">
                         <div class="horizontal-news-img">
@@ -79,9 +79,9 @@
                     </div>
                 }
             }
-            else if (layout == "FeaturedOnly")
+            else if (string.Equals(layout, "FeaturedOnly", StringComparison.OrdinalIgnoreCase))
             {
-                @foreach (var post in Model)
+                foreach (var post in Model)
                 {
                     <div class="featured-hero-card mb-4">
                         <div class="featured-hero-img">
