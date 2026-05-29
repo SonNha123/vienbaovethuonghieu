@@ -98,11 +98,65 @@
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarToggleBtn, #sidebarOverlay').click(function () {
                 $('#adminSidebar').toggleClass('show');
                 $('#sidebarOverlay').toggleClass('show');
+            });
+
+            // Global SweetAlert2 Interceptor for data-confirm dialogs
+            $(document).on('click', '[data-confirm]', function (e) {
+                const element = $(this);
+                
+                // If already confirmed by Swal, allow normal execution
+                if (element.data('swal-confirmed')) {
+                    element.data('swal-confirmed', false);
+                    return true;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const message = element.attr('data-confirm');
+
+                Swal.fire({
+                    title: 'Xác nhận hành động?',
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545', // Bootstrap Danger
+                    cancelButtonColor: '#6c757d',  // Bootstrap Secondary
+                    confirmButtonText: '<i class="fa-solid fa-check me-2"></i>Đồng ý',
+                    cancelButtonText: '<i class="fa-solid fa-xmark me-2"></i>Hủy bỏ',
+                    focusCancel: true,
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg border-0 p-4',
+                        title: 'fw-bold text-dark font-monospace fs-4',
+                        htmlContainer: 'text-muted fs-6 py-3',
+                        confirmButton: 'btn btn-danger px-4 py-2 rounded-pill fw-bold font-monospace me-2',
+                        cancelButton: 'btn btn-secondary px-4 py-2 rounded-pill fw-bold font-monospace'
+                    },
+                    buttonsStyling: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const href = element.attr('href');
+                        const form = element.closest('form');
+                        
+                        if (href && href !== '#' && !href.startsWith('javascript:')) {
+                            window.location.href = href;
+                        } else if (form.length > 0) {
+                            form.submit();
+                        } else {
+                            element.data('swal-confirmed', true);
+                            element[0].click();
+                        }
+                    }
+                });
+
+                return false;
             });
         });
     </script>

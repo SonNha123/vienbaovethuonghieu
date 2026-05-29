@@ -12,6 +12,22 @@
         </button>
     </div>
     <div class="card-body p-0">
+        <!-- SEARCH AND FILTER CONTROLS -->
+        <div class="row g-3 p-3 bg-light border-bottom m-0">
+            <div class="col-md-7 col-12">
+                <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm</label>
+                <input type="text" id="categorySearchInput" class="form-control shadow-sm" placeholder="Tìm theo tên chuyên mục, slug..." />
+            </div>
+            <div class="col-md-5 col-12">
+                <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-circle-check me-1"></i>Hiển thị Navbar</label>
+                <select id="categoryNavFilter" class="form-select shadow-sm">
+                    <option value="">Tất cả</option>
+                    <option value="shown">Có hiển thị</option>
+                    <option value="hidden">Không hiển thị (Tắt)</option>
+                </select>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light font-monospace text-uppercase text-secondary" style="font-size: 0.85rem;">
@@ -25,13 +41,13 @@
                         <th class="text-end pe-4" style="width: 180px;">Hành động</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="categoriesTableBody">
                     @foreach (var item in Model)
                     {
                         <tr>
                             <td class="ps-4 font-monospace fw-bold">#@item.Id</td>
-                            <td class="fw-bold">@item.Name</td>
-                            <td class="text-secondary font-monospace">@item.Slug</td>
+                            <td class="fw-bold category-name">@item.Name</td>
+                            <td class="text-secondary font-monospace category-slug">@item.Slug</td>
                             <td>
                                 @if (item.DisplayLayout == "Standard") { <span class="badge bg-secondary">Tiêu chuẩn</span> }
                                 else if (item.DisplayLayout == "Grid") { <span class="badge bg-info text-dark">Lưới ô</span> }
@@ -42,22 +58,24 @@
                             <td class="text-center font-monospace">@item.DisplayOrder</td>
                             <td class="text-center">
                                 <div class="form-check form-switch d-inline-block">
-                                    <input class="form-check-input toggle-nav-switch" type="checkbox" role="switch" data-id="@item.Id" @(item.IsShownOnNav ? "checked" : "") />
+                                    <input class="form-check-input toggle-nav-switch category-nav-checkbox" type="checkbox" role="switch" data-id="@item.Id" @(item.IsShownOnNav ? "checked" : "") />
                                 </div>
                             </td>
                             <td class="text-end pe-4">
-                                <button class="btn btn-outline-primary btn-sm rounded-circle me-1 edit-category-btn" 
-                                        data-id="@item.Id" 
-                                        data-name="@item.Name" 
-                                        data-order="@item.DisplayOrder" 
-                                        data-nav="@(item.IsShownOnNav ? "true" : "false")"
-                                        data-layout="@item.DisplayLayout"
-                                        title="Chỉnh sửa">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <a asp-action="DeleteCategory" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm rounded-circle" onclick="return confirm('Bạn có chắc chắn muốn xóa chuyên mục này? Các bài viết thuộc chuyên mục này phải được chuyển sang danh mục khác trước khi xóa.')" title="Xóa">
-                                    <i class="fa-solid fa-trash"></i>
-                                </a>
+                                <div class="d-flex gap-2 justify-content-end align-items-center flex-nowrap">
+                                    <button class="btn btn-outline-primary btn-sm rounded-circle edit-category-btn" 
+                                            data-id="@item.Id" 
+                                            data-name="@item.Name" 
+                                            data-order="@item.DisplayOrder" 
+                                            data-nav="@(item.IsShownOnNav ? "true" : "false")"
+                                            data-layout="@item.DisplayLayout"
+                                            title="Chỉnh sửa">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <a asp-action="DeleteCategory" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm rounded-circle" data-confirm="Bạn có chắc chắn muốn xóa chuyên mục này? Các bài viết thuộc chuyên mục này phải được chuyển sang danh mục khác trước khi xóa." title="Xóa">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -199,6 +217,50 @@
                     }
                 });
             });
+
+            // Client-side Table Filter for Categories
+            function filterCategoriesTable() {
+                var searchVal = $('#categorySearchInput').val().toLowerCase().trim();
+                var navVal = $('#categoryNavFilter').val(); // "shown" or "hidden" or ""
+
+                $('#categoriesTableBody tr').each(function () {
+                    var row = $(this);
+                    if (row.attr('id') === 'noCategoriesRow') return;
+
+                    var name = row.find('.category-name').text().toLowerCase();
+                    var slug = row.find('.category-slug').text().toLowerCase();
+                    var isShownOnNav = row.find('.category-nav-checkbox').is(':checked');
+
+                    // Check Search keyword
+                    var matchesSearch = (name.indexOf(searchVal) > -1 || slug.indexOf(searchVal) > -1);
+
+                    // Check Nav Filter
+                    var matchesNav = true;
+                    if (navVal === "shown") {
+                        matchesNav = isShownOnNav;
+                    } else if (navVal === "hidden") {
+                        matchesNav = !isShownOnNav;
+                    }
+
+                    if (matchesSearch && matchesNav) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+
+                // Display "No results" if all rows are hidden
+                if ($('#categoriesTableBody tr:visible').not('#noCategoriesRow').length === 0) {
+                    if ($('#noCategoriesRow').length === 0) {
+                        $('#categoriesTableBody').append('<tr id="noCategoriesRow"><td colspan="7" class="text-center text-muted py-4"><i class="fa-solid fa-folder-open fs-3 d-block mb-2"></i>Không tìm thấy chuyên mục phù hợp.</td></tr>');
+                    }
+                } else {
+                    $('#noCategoriesRow').remove();
+                }
+            }
+
+            $('#categorySearchInput').on('keyup', filterCategoriesTable);
+            $('#categoryNavFilter').on('change', filterCategoriesTable);
         });
     </script>
 }

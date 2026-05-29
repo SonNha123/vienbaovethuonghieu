@@ -42,6 +42,23 @@
     <div class="col-lg-8 col-12">
         <div class="admin-card">
             <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-building me-2 text-warning"></i> Danh sách Logo đối tác chiến lược</h4>
+            
+            <!-- SEARCH AND FILTER CONTROLS -->
+            <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                <div class="col-md-7 col-12">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm</label>
+                    <input type="text" id="logoSearchInput" class="form-control shadow-sm" placeholder="Tìm theo tên doanh nghiệp..." />
+                </div>
+                <div class="col-md-5 col-12">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-circle-check me-1"></i>Trạng thái hiển thị</label>
+                    <select id="logoStatusFilter" class="form-select shadow-sm">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang hiển thị ở chân trang</option>
+                        <option value="inactive">Không hiển thị (Tắt)</option>
+                    </select>
+                </div>
+            </div>
+
             @if (Model.Any())
             {
                 <div class="table-responsive">
@@ -55,7 +72,7 @@
                                 <th class="text-center">Hành động</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="logosTableBody">
                             @foreach (var partner in Model)
                             {
                                 <tr>
@@ -64,11 +81,11 @@
                                             <img src="@partner.LogoUrl" alt="@partner.CompanyName" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
                                         </div>
                                     </td>
-                                    <td class="fw-bold text-dark">@partner.CompanyName</td>
+                                    <td class="fw-bold text-dark logo-name">@partner.CompanyName</td>
                                     <td class="small"><a href="@partner.WebsiteUrl" target="_blank" class="text-decoration-none">@partner.WebsiteUrl</a></td>
                                     <td class="text-center font-monospace fw-bold text-primary">@partner.DisplayOrder</td>
                                     <td class="text-center">
-                                        <div class="d-flex gap-1 justify-content-center">
+                                        <div class="d-flex gap-2 justify-content-center flex-nowrap">
                                             <button class="btn btn-sm btn-outline-primary rounded-pill px-3 edit-logo-btn"
                                                     data-id="@partner.Id"
                                                     data-name="@partner.CompanyName"
@@ -77,7 +94,7 @@
                                                     data-active="@(partner.IsActive ? "true" : "false")">
                                                 <i class="fa-solid fa-pen"></i> Sửa
                                             </button>
-                                            <a asp-action="DeletePartnerLogo" asp-route-id="@partner.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Bạn có chắc chắn muốn xóa logo doanh nghiệp này?')"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
+                                            <a asp-action="DeletePartnerLogo" asp-route-id="@partner.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" data-confirm="Bạn có chắc chắn muốn xóa logo doanh nghiệp này?"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -165,6 +182,51 @@
 
                 $('#editLogoModal').modal('show');
             });
+
+            // Client-side Table Filter for Logos
+            function filterLogosTable() {
+                var searchVal = $('#logoSearchInput').val().toLowerCase().trim();
+                var statusVal = $('#logoStatusFilter').val(); // "active" or "inactive" or ""
+
+                $('#logosTableBody tr').each(function () {
+                    var row = $(this);
+                    if (row.attr('id') === 'noLogosRow') return;
+
+                    var name = row.find('.logo-name').text().toLowerCase();
+                    var activeAttr = row.find('.edit-logo-btn').attr('data-active');
+                    var isActive = (activeAttr === 'true' || activeAttr === true);
+
+                    // Check Search keyword
+                    var matchesSearch = (name.indexOf(searchVal) > -1);
+
+                    // Check Status Filter
+                    var matchesStatus = true;
+                    if (statusVal === "active") {
+                        matchesStatus = isActive;
+                    } else if (statusVal === "inactive") {
+                        matchesStatus = !isActive;
+                    }
+
+                    if (matchesSearch && matchesStatus) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+
+                // Display "No results" if all rows are hidden
+                if ($('#logosTableBody tr:visible').not('#noLogosRow').length === 0) {
+                    if ($('#noLogosRow').length === 0) {
+                        $('#logosTableBody').append('<tr id="noLogosRow"><td colspan="5" class="text-center text-muted py-4"><i class="fa-solid fa-folder-open fs-3 d-block mb-2"></i>Không tìm thấy logo doanh nghiệp phù hợp.</td></tr>');
+                    }
+                } else {
+                    $('#noBannersRow').remove();
+                    $('#noLogosRow').remove();
+                }
+            }
+
+            $('#logoSearchInput').on('keyup', filterLogosTable);
+            $('#logoStatusFilter').on('change', filterLogosTable);
         });
     </script>
 }

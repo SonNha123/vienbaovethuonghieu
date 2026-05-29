@@ -57,6 +57,31 @@
     <div class="col-lg-8 col-12">
         <div class="admin-card">
             <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-rectangle-ad me-2 text-warning"></i> Danh sách Banner đang chạy</h4>
+            
+            <!-- SEARCH AND FILTER CONTROLS -->
+            <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                <div class="col-md-5 col-12">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm</label>
+                    <input type="text" id="bannerSearchInput" class="form-control shadow-sm" placeholder="Tìm theo tên chiến dịch..." />
+                </div>
+                <div class="col-md-3 col-6">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-location-dot me-1"></i>Vị trí</label>
+                    <select id="bannerPositionFilter" class="form-select shadow-sm">
+                        <option value="">Tất cả vị trí</option>
+                        <option value="InBetween">Banner Ngang xen kẽ</option>
+                        <option value="Sidebar">Banner đứng 2 bên lề</option>
+                    </select>
+                </div>
+                <div class="col-md-4 col-6">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-circle-check me-1"></i>Trạng thái</label>
+                    <select id="bannerStatusFilter" class="form-select shadow-sm">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang kích hoạt</option>
+                        <option value="inactive">Chưa kích hoạt (Tắt)</option>
+                    </select>
+                </div>
+            </div>
+
             @if (Model.Any())
             {
                 <div class="table-responsive">
@@ -70,18 +95,18 @@
                                 <th class="text-center">Hành động</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="bannersTableBody">
                             @foreach (var banner in Model)
                             {
                                 <tr>
                                     <td>
                                         <div style="width: 100px; height: 50px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border-color);">
-                                            <img src="@banner.ImageUrl" class="w-100 h-100" style="object-fit: cover;" />
+                                            <img src="@banner.ImageUrl" class="w-100 h-100" style="object-fit: cover;" alt="" />
                                         </div>
                                     </td>
                                     <td>
-                                        <h6 class="m-0 fw-bold">@banner.Title</h6>
-                                        <span class="badge bg-secondary font-monospace text-uppercase" style="font-size: 0.65rem;">Vị trí: @banner.Position</span>
+                                        <h6 class="m-0 fw-bold banner-title">@banner.Title</h6>
+                                        <span class="badge bg-secondary font-monospace text-uppercase banner-position" style="font-size: 0.65rem;">Vị trí: @banner.Position</span>
                                     </td>
                                     <td class="small">
                                         <div>Bắt đầu: @banner.StartDate.ToString("dd/MM/yyyy")</div>
@@ -89,11 +114,11 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="form-check form-switch d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" checked="@banner.IsActive" onchange="toggleBanner(@banner.Id)" />
+                                            <input class="form-check-input banner-active-checkbox" type="checkbox" role="switch" checked="@banner.IsActive" onchange="toggleBanner(@banner.Id)" />
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <div class="d-flex gap-1 justify-content-center">
+                                        <div class="d-flex gap-2 justify-content-center flex-nowrap">
                                             <button class="btn btn-sm btn-outline-primary rounded-pill px-3 edit-banner-btn"
                                                     data-id="@banner.Id"
                                                     data-title="@banner.Title"
@@ -104,7 +129,7 @@
                                                     data-active="@(banner.IsActive ? "true" : "false")">
                                                 <i class="fa-solid fa-pen"></i> Sửa
                                             </button>
-                                            <a asp-action="DeleteBanner" asp-route-id="@banner.Id" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bạn có chắc chắn muốn xóa banner quảng cáo này?')"><i class="fa-solid fa-trash-can"></i> Xóa</a>
+                                            <a asp-action="DeleteBanner" asp-route-id="@banner.Id" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-confirm="Bạn có chắc chắn muốn xóa banner quảng cáo này?"><i class="fa-solid fa-trash-can"></i> Xóa</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -210,6 +235,54 @@
 
                 $('#editBannerModal').modal('show');
             });
+
+            // Client-side Table Filter for Banners
+            function filterBannersTable() {
+                var searchVal = $('#bannerSearchInput').val().toLowerCase().trim();
+                var positionVal = $('#bannerPositionFilter').val().toLowerCase().trim();
+                var statusVal = $('#bannerStatusFilter').val(); // "active" or "inactive" or ""
+
+                $('#bannersTableBody tr').each(function () {
+                    var row = $(this);
+                    if (row.attr('id') === 'noBannersRow') return;
+
+                    var title = row.find('.banner-title').text().toLowerCase();
+                    var position = row.find('.banner-position').text().toLowerCase();
+                    var isActive = row.find('.banner-active-checkbox').is(':checked');
+
+                    // Check Search keyword
+                    var matchesSearch = (title.indexOf(searchVal) > -1);
+                    
+                    // Check Position Filter
+                    var matchesPosition = (positionVal === "" || position.indexOf(positionVal) > -1);
+
+                    // Check Status Filter
+                    var matchesStatus = true;
+                    if (statusVal === "active") {
+                        matchesStatus = isActive;
+                    } else if (statusVal === "inactive") {
+                        matchesStatus = !isActive;
+                    }
+
+                    if (matchesSearch && matchesPosition && matchesStatus) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+
+                // Display "No results" if all rows are hidden
+                if ($('#bannersTableBody tr:visible').not('#noBannersRow').length === 0) {
+                    if ($('#noBannersRow').length === 0) {
+                        $('#bannersTableBody').append('<tr id="noBannersRow"><td colspan="5" class="text-center text-muted py-4"><i class="fa-solid fa-folder-open fs-3 d-block mb-2"></i>Không tìm thấy banner quảng cáo phù hợp.</td></tr>');
+                    }
+                } else {
+                    $('#noBannersRow').remove();
+                }
+            }
+
+            $('#bannerSearchInput').on('keyup', filterBannersTable);
+            $('#bannerPositionFilter, #bannerStatusFilter').on('change', filterBannersTable);
         });
 
         function toggleBanner(id) {

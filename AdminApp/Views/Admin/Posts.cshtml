@@ -112,6 +112,33 @@
     <div class="col-12">
         <div class="admin-card">
             <h4 class="brand-font fs-5 text-secondary text-uppercase mb-4"><i class="fa-solid fa-newspaper me-2 text-warning"></i> Danh sách tất cả bài viết PR</h4>
+            
+            <!-- SEARCH AND FILTER CONTROLS -->
+            <div class="row g-3 mb-4 p-3 bg-light rounded-3 border">
+                <div class="col-md-5 col-12">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm từ khóa</label>
+                    <input type="text" id="postSearchInput" class="form-control shadow-sm" placeholder="Tìm theo tiêu đề, tác giả, doanh nghiệp..." />
+                </div>
+                <div class="col-md-3 col-6">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-tags me-1"></i>Chuyên mục</label>
+                    <select id="postCategoryFilter" class="form-select shadow-sm">
+                        <option value="">Tất cả chuyên mục</option>
+                        @foreach (var cat in categories)
+                        {
+                            <option value="@cat.Name">@cat.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-6">
+                    <label class="form-label fw-bold text-secondary small"><i class="fa-solid fa-circle-check me-1"></i>Trạng thái duyệt</label>
+                    <select id="postStatusFilter" class="form-select shadow-sm">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="approved">Đã duyệt (Kích hoạt)</option>
+                        <option value="pending">Chưa duyệt (Tắt)</option>
+                    </select>
+                </div>
+            </div>
+
             @if (Model.Any())
             {
                 <div class="table-responsive">
@@ -127,48 +154,50 @@
                                 <th class="text-center">Hành động</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="postsTableBody">
                             @foreach (var post in Model)
                             {
                                 <tr>
                                     <td>
                                         <div style="width: 80px; height: 50px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border-color);">
-                                            <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=200" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" />
+                                            <img src="@(string.IsNullOrEmpty(post.ImageUrl) ? "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=200" : post.ImageUrl)" class="w-100 h-100" style="object-fit: cover;" alt="" />
                                         </div>
                                     </td>
                                     <td>
-                                        <h6 class="m-0 fw-bold">@post.Title</h6>
+                                        <h6 class="m-0 fw-bold post-title">@post.Title</h6>
                                         @if (post.IsFeatured)
                                         {
                                             <span class="badge bg-danger font-monospace text-uppercase" style="font-size: 0.6rem;"><i class="fa-solid fa-thumbtack me-1"></i> Tiêu điểm</span>
                                         }
                                     </td>
-                                    <td><span class="badge bg-light text-secondary">@post.Category?.Name</span></td>
-                                    <td class="small">
-                                        <div>@post.Author?.FullName</div>
-                                        <div class="text-muted">@post.Author?.CompanyName</div>
+                                    <td><span class="badge bg-light text-secondary post-category">@post.Category?.Name</span></td>
+                                    <td class="small post-author">
+                                        <div>@(string.IsNullOrEmpty(post.CustomAuthor) ? post.Author?.FullName : post.CustomAuthor)</div>
+                                        <div class="text-muted">@(string.IsNullOrEmpty(post.CustomBusiness) ? post.Author?.CompanyName : post.CustomBusiness)</div>
                                     </td>
                                     <td class="small text-muted font-monospace">@post.CreatedAt.ToString("dd/MM/yyyy")</td>
                                     <td class="text-center">
                                         <div class="form-check form-switch d-inline-block">
-                                            <input class="form-check-input" type="checkbox" role="switch" checked="@post.IsApproved" onchange="togglePostApproval(@post.Id)" />
+                                            <input class="form-check-input post-approval-checkbox" type="checkbox" role="switch" checked="@post.IsApproved" onchange="togglePostApproval(@post.Id)" />
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-outline-primary px-3 rounded-pill btn-edit-post me-1"
-                                                data-id="@post.Id"
-                                                data-title="@post.Title"
-                                                data-categoryid="@post.CategoryId"
-                                                data-featured="@post.IsFeatured.ToString().ToLower()"
-                                                data-isapproved="@post.IsApproved.ToString().ToLower()"
-                                                data-videotype="@post.VideoType"
-                                                data-videourl="@post.VideoUrl"
-                                                data-customauthor="@post.CustomAuthor"
-                                                data-custombusiness="@post.CustomBusiness"
-                                                data-imagecaption="@post.ImageCaption">
-                                            <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
-                                        </button>
-                                        <a asp-action="DeletePost" asp-route-id="@post.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?')"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
+                                        <div class="d-flex gap-2 justify-content-center align-items-center flex-nowrap">
+                                            <button type="button" class="btn btn-sm btn-outline-primary px-3 rounded-pill btn-edit-post"
+                                                    data-id="@post.Id"
+                                                    data-title="@post.Title"
+                                                    data-categoryid="@post.CategoryId"
+                                                    data-featured="@post.IsFeatured.ToString().ToLower()"
+                                                    data-isapproved="@post.IsApproved.ToString().ToLower()"
+                                                    data-videotype="@post.VideoType"
+                                                    data-videourl="@post.VideoUrl"
+                                                    data-customauthor="@post.CustomAuthor"
+                                                    data-custombusiness="@post.CustomBusiness"
+                                                    data-imagecaption="@post.ImageCaption">
+                                                <i class="fa-solid fa-pen-to-square me-1"></i> Sửa
+                                            </button>
+                                            <a asp-action="DeletePost" asp-route-id="@post.Id" class="btn btn-sm btn-outline-danger px-3 rounded-pill" data-confirm="Bạn có chắc chắn muốn xóa bài viết này?"><i class="fa-solid fa-trash-can me-1"></i> Xóa</a>
+                                        </div>
                                         
                                         <textarea class="d-none" id="summary-@post.Id">@post.Summary</textarea>
                                         <textarea class="d-none" id="content-@post.Id">@post.Content</textarea>
@@ -549,6 +578,56 @@
                     }
                 }
             });
+
+            // Client-side Table Filter for Posts
+            function filterPostsTable() {
+                var searchVal = $('#postSearchInput').val().toLowerCase().trim();
+                var catVal = $('#postCategoryFilter').val().toLowerCase().trim();
+                var statusVal = $('#postStatusFilter').val(); // "approved" or "pending" or ""
+
+                $('#postsTableBody tr').each(function () {
+                    var row = $(this);
+                    // Skip if it's the no-results row
+                    if (row.attr('id') === 'noPostsRow') return;
+
+                    var title = row.find('.post-title').text().toLowerCase();
+                    var category = row.find('.post-category').text().toLowerCase();
+                    var author = row.find('.post-author').text().toLowerCase();
+                    var isApproved = row.find('.post-approval-checkbox').is(':checked');
+
+                    // Check Search keyword (in title, author or business)
+                    var matchesSearch = (title.indexOf(searchVal) > -1 || author.indexOf(searchVal) > -1);
+                    
+                    // Check Category Filter
+                    var matchesCategory = (catVal === "" || category.indexOf(catVal) > -1);
+
+                    // Check Status Filter
+                    var matchesStatus = true;
+                    if (statusVal === "approved") {
+                        matchesStatus = isApproved;
+                    } else if (statusVal === "pending") {
+                        matchesStatus = !isApproved;
+                    }
+
+                    if (matchesSearch && matchesCategory && matchesStatus) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+
+                // Display "No results" if all rows are hidden
+                if ($('#postsTableBody tr:visible').not('#noPostsRow').length === 0) {
+                    if ($('#noPostsRow').length === 0) {
+                        $('#postsTableBody').append('<tr id="noPostsRow"><td colspan="7" class="text-center text-muted py-4"><i class="fa-solid fa-folder-open fs-3 d-block mb-2"></i>Không tìm thấy bài viết phù hợp.</td></tr>');
+                    }
+                } else {
+                    $('#noPostsRow').remove();
+                }
+            }
+
+            $('#postSearchInput').on('keyup', filterPostsTable);
+            $('#postCategoryFilter, #postStatusFilter').on('change', filterPostsTable);
         });
     </script>
 }
