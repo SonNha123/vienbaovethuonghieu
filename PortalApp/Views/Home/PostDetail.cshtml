@@ -10,10 +10,14 @@
     }
     .article-content figure.image img {
         max-width: 100%;
+        max-height: 450px; /* Constrain extremely tall/large inline images */
+        width: auto;
         height: auto;
+        object-fit: contain; /* Prevent scaling distortion */
         border-radius: 8px;
         border: 1px solid #e2e8f0;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        margin: 0 auto;
     }
     .article-content figure.image figcaption {
         font-size: 0.85rem;
@@ -29,9 +33,19 @@
         text-align: center;
     }
 
-    /* Related Images Carousel premium customization */
+    /* Related Images Carousel premium customization & responsive sizing */
     #relatedImagesCarousel {
         background-color: #0f172a;
+        max-width: 600px; /* Centered, elegant maximum width for the image frame */
+        margin: 0 auto;
+    }
+    #relatedImagesCarousel .carousel-inner {
+        height: 350px; /* Elegant height on desktop */
+    }
+    @@media (max-width: 768px) {
+        #relatedImagesCarousel .carousel-inner {
+            height: 240px; /* Very compact and readable height on mobile screens */
+        }
     }
     #relatedImagesCarousel .carousel-indicators [data-bs-target] {
         width: 10px;
@@ -184,7 +198,7 @@
                         </div>
 
                         <!-- Slides wrapper -->
-                        <div class="carousel-inner bg-dark" style="height: 480px;">
+                        <div class="carousel-inner bg-dark">
                             @for (int i = 0; i < additionalImages.Count; i++)
                             {
                                 var imgObj = additionalImages[i];
