@@ -36,6 +36,11 @@ h1, h2, h3, h4, h5, h6, .brand-font {
     background-color: var(--primary-color);
     color: #ffffff;
     transition: all 0.3s;
+    /* Sticky Sidebar on Desktop */
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 .admin-sidebar .sidebar-header {
@@ -80,6 +85,19 @@ h1, h2, h3, h4, h5, h6, .brand-font {
     min-width: 0; /* Prevent wide tables/inputs from expanding parent and shrinking the sidebar */
     background-color: #f8fafc;
     padding: 30px;
+}
+
+/* Sticky top navbar for admin pages */
+.admin-top-navbar {
+    position: sticky;
+    top: 0;
+    background-color: #f8fafc; /* Matches content background */
+    z-index: 100;
+    margin-top: -30px; /* offset padding-top of .admin-content */
+    margin-left: -30px; /* offset padding-left of .admin-content */
+    margin-right: -30px; /* offset padding-right of .admin-content */
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border-color) !important;
 }
 
 .admin-card {
@@ -130,6 +148,15 @@ h1, h2, h3, h4, h5, h6, .brand-font {
     .admin-content {
         padding: 20px 15px;
         margin-top: 60px; /* Space for mobile top bar */
+    }
+
+    /* Mobile sticky navbar adjustments */
+    .admin-top-navbar {
+        top: 60px !important; /* Stays below the fixed mobile top bar (60px) */
+        margin-top: -20px !important;
+        margin-left: -15px !important;
+        margin-right: -15px !important;
+        padding: 15px 15px !important;
     }
 
     /* Top navbar adjustments */

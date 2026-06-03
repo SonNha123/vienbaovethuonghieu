@@ -68,7 +68,7 @@
         <!-- MAIN ADMIN CONTENT -->
         <div class="admin-content">
             <!-- TOP NAVBAR -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pb-3 border-bottom gap-3">
+            <div class="admin-top-navbar d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pb-3 border-bottom gap-3">
                 <h2 class="brand-font m-0 text-uppercase text-secondary">@ViewData["Title"]</h2>
                 <div class="admin-user-info">
                     <span class="badge bg-light text-dark border p-2 font-monospace d-inline-block text-wrap text-start"><i class="fa-solid fa-user-tie text-primary me-2"></i> Quyền: @(User.IsInRole("SuperAdmin") ? "SuperAdmin" : "Editor") | Tài khoản: @User.Identity?.Name</span>

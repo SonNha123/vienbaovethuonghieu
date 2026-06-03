@@ -372,7 +372,6 @@ D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\scopedcss\bundle\AdminApp.styles.css
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\scopedcss\projectbundle\AdminApp.bundle.scp.css
-D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\compressed\ra33wnngli-{0}-y7f43eq1zx-y7f43eq1zx.gz
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\compressed\broys7225h-{0}-61n19gt1b8-61n19gt1b8.gz
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\compressed\28hhi1ndw3-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\compressed\gv7b6t8qoq-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -448,3 +447,4 @@ D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\AdminApp.pdb
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\AdminApp.genruntimeconfig.cache
 D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\ref\AdminApp.dll
 D:\DEV\vienbaovethuonghieu\AdminApp\bin\Debug\net10.0\appsettings.Secrets.json
+D:\DEV\vienbaovethuonghieu\AdminApp\obj\Debug\net10.0\compressed\ra33wnngli-{0}-1kkhd754kx-1kkhd754kx.gz
